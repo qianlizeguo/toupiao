@@ -300,6 +300,8 @@ class VoteAction extends BaseAction
     }
     public function ticket()
     {
+        var_dump($_POST);
+        die;
         if (IS_POST) {
             $IIIIIlllIl1l = $_POST['zid'];
             $IIIIIllI1l1l = $_POST['vid'];

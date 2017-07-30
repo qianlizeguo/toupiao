@@ -203,19 +203,19 @@ scroll.onmouseover=function(){clearInterval(myvar);}
   
 
 </script>
-<div style="width:100%;height:30px;line-height:30px;text-align:center;position:relative;margin-bottom:30px;color:#fff;opacity:0.7; ">
+<!--<div style="width:100%;height:30px;line-height:30px;text-align:center;position:relative;margin-bottom:30px;color:#fff;opacity:0.7; ">
   距离活动结束还剩:<strong id="DD"></strong>天 <strong id="HH"></strong>时 <strong id="MM"></strong>分 <strong id="SS"></strong>秒
-</div>
+  </div>-->
             <img src="<?php echo STATICS;?>/vote/index<?php echo ($vote['moban']); ?>/mw_004.jpg" />
         </div>
         <div class="search">
     <form action="<?php echo U('Vote/search');?>" id="search_form" method="post" accept-charset="utf-8">
     <input type="hidden" name="id" value="<?php echo ($id); ?>" />
 	<input type="hidden" name="token" value="<?php echo ($token); ?>" />
-        <div class="search_con">
+        <!--<div class="search_con">
             <div class="btn"><input type="submit" name="seachid" id="searchBtn" value="搜索"></div>
             <div class="text_box"><input type="search" id="searchText" value="" name="keyword" placeholder="请输入选手姓名或编号" autocomplete="off"></div>
-        </div>
+            </div>-->
     </form>
 </div>    </div>
 </header>
@@ -242,7 +242,7 @@ scroll.onmouseover=function(){clearInterval(myvar);}
                                    <?php echo ($li["item"]); ?><br/>
                                    <?php echo ($li["vcount"]); ?>票
                                 </p>
-                                <a href="" class="vote" data-itid="<?php echo ($li["id"]); ?>" data-vote_num="<?php echo ($li["id"]); ?>" data-rule_id="<?php echo ($li["id"]); ?>">选择</a>
+                                <a href="#" class="vote" data-itid="<?php echo ($li["id"]); ?>" data-vote_num="<?php echo ($li["id"]); ?>" data-rule_id="<?php echo ($li["id"]); ?>">选择</a>
                             </div>
                         </div>
                     </li><?php endforeach; endif; else: echo "" ;endif; ?>
@@ -250,7 +250,7 @@ scroll.onmouseover=function(){clearInterval(myvar);}
 
     </div>
 
-    <div class="pagination pagination-centered"> <ul><?php echo ($page_string); ?></ul></div>
+    <!--<div class="pagination pagination-centered"> <ul><?php echo ($page_string); ?></ul></div>-->
 </section>
 <img class="bg" src="<?php echo STATICS;?>/vote/index<?php echo ($vote['moban']); ?>/mw_005.jpg" />
 
@@ -325,12 +325,13 @@ scroll.onmouseover=function(){clearInterval(myvar);}
 
 <div class="bot_main">
   <ul>
-    <li class="ico_1"><span class="ico"><img src="<?php echo STATICS;?>/vote//index2/i1.png" /></span><span class="txt">首页</span></li>
-    <li class="ico_2"><span class="ico"><img src="<?php echo STATICS;?>/vote//index2/i3.png" /></span><span class="txt">排名</span></li>
-    <li class="ico_3"><span class="ico"><img src="<?php echo STATICS;?>/vote//index2/i11.png" /></span><span class="txt"><?php if(!empty($ishavezp)): ?>我的<?php else: ?>报名<?php endif; ?></span></li>
+    <li class="ico_1"><span class="ico"><img src="<?php echo STATICS;?>/vote//index2/i1.png" /></span><span class="txt">活动首页</span></li>
+    <li class="ico_2"><span class="ico"><img src="<?php echo STATICS;?>/vote//index2/i3.png" /></span><span class="txt">排行榜</span></li>
+    <!--<li class="ico_3"><span class="ico"><img src="<?php echo STATICS;?>/vote//index2/i11.png" /></span><span class="txt"><?php if(!empty($ishavezp)): ?>我的<?php else: ?>报名<?php endif; ?></span></li>
     <?php if($user['tpjl']==1 && $user['tpjlnum'] > 0 && $user['gldzpid'] != 0): ?><li class="ico_4"><span class="ico"><img src="<?php echo STATICS;?>/vote/index2/i4.png" /></span><span class="txt">免费抽奖</span></li>
    <?php else: ?>
-	<li class="ico_4"><span class="ico"><img src="<?php echo STATICS;?>/vote/index2/i4.png" /></span><span class="txt"><?php echo ($user["dbdhm"]); ?></span></li><?php endif; ?>
+	<li class="ico_4"><span class="ico"><img src="<?php echo STATICS;?>/vote/index2/i4.png" /></span><span class="txt"><?php echo ($user["dbdhm"]); ?></span></li><?php endif; ?>-->
+    <li class="ico_4"><span class="ico"><img src="<?php echo STATICS;?>/vote//index2/i11.png" /></span><span class="txt">活动规则</span></li>
   </ul>
 </div>
 
@@ -532,6 +533,11 @@ var itid;
         });
     });
 <?php else: ?>
+var $arr = [];
+$arr[1]=9;
+$arr[2]=9;
+$arr[3]=9;
+$arr[4]=9;
     $(function(){
         $('.vote').on('tap', function(e){
             e.preventDefault();
@@ -542,6 +548,7 @@ var itid;
                 url: "<?php echo U('Vote/ticket');?>",
                 cache: false,
                 data: {
+                    arr:$arr,
                     zid:self.data('itid'),
 					vid:'<?php echo ($id); ?>',
 					token:'<?php echo ($token); ?>',

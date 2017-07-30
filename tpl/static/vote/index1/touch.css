@@ -261,7 +261,7 @@ img {-ms-interpolation-mode: bicubic; }
 .rules .text .neirong p{color: #ec6941; font-size: 14px; padding: 15px;}
 .rules .text .neirong img{ width:100%; height:auto;}
 
-img.bg{width: 100%;display: block;}
+img.bg{width: 100%;display: block;margin-bottom:42px}
 input[type="button"], input[type="submit"] {-webkit-appearance: none;}
 
 .review {
