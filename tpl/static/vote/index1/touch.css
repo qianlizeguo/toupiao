@@ -80,7 +80,7 @@ img {-ms-interpolation-mode: bicubic; }
 .content .list_box li img{width: 100%;}
 .content .list_box li p{float: left;line-height: 22px;color: #fff; width: 60%; padding-left: 5%;}
 .content .list_box li a.img{display: block; padding: 3px 3px 0;}
-.content .list_box li a.vote{float: right; width: 30%; height: 50px; background: #f9493c; line-height: 50px; color: #fff; font-size: 16px; text-align: center;}
+.content .list_box li a.vote{float: right; width: 20%; height: 36px; background: white;background-size:100%;margin:4px 4px 6px 0;background-position:100% 100%;background-image:url(/tpl/check.png); background-repeat:no-repeat;border-radius:2px; line-height: 50px; color: #fff; font-size: 16px; text-align: center;border:2px solid #d81e06;}
 
 .text{width: 100%;}
 .text p{line-height: 24px;color: #fff;font-size: 18px;}

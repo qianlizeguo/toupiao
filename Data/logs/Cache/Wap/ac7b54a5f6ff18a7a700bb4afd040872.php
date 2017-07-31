@@ -242,7 +242,7 @@ scroll.onmouseover=function(){clearInterval(myvar);}
                                    <?php echo ($li["item"]); ?><br/>
                                    <?php echo ($li["vcount"]); ?>票
                                 </p>
-                                <a href="#" class="vote" data-itid="<?php echo ($li["id"]); ?>" data-vote_num="<?php echo ($li["id"]); ?>" data-rule_id="<?php echo ($li["id"]); ?>">选择</a>
+                                <a href="#" class="vote" data-itid="<?php echo ($li["id"]); ?>" data-vote_num="<?php echo ($li["id"]); ?>" data-rule_id="<?php echo ($li["id"]); ?>"></a>
                             </div>
                         </div>
                     </li><?php endforeach; endif; else: echo "" ;endif; ?>
@@ -534,88 +534,16 @@ var itid;
     });
 <?php else: ?>
 var $arr = [];
-$arr[1]=9;
-$arr[2]=9;
-$arr[3]=9;
-$arr[4]=9;
     $(function(){
         $('.vote').on('tap', function(e){
             e.preventDefault();
             var self = $(e.target).closest('.vote');
-			 $('#voting2').show();
-            $.ajax({
-                type: "POST",
-                url: "<?php echo U('Vote/ticket');?>",
-                cache: false,
-                data: {
-                    arr:$arr,
-                    zid:self.data('itid'),
-					vid:'<?php echo ($id); ?>',
-					token:'<?php echo ($token); ?>',
-					'__hash__':$('input[name="__hash__"]').val()
-					
-                },
-                success: function(data) {
-                  if (data == 102) {//未关注
-                        $('#voting2').hide();
-						$('#guanzhu').show();
-                    } else if (data == 108) {//投票成功
-                        $('#voting2').hide();
-						$('#voted').show();
-                    } else if (data == 106) {//此用户今日已无法投票
-						$('#voting2').hide();
-						$('#voting_title').html('无法投票');
-						$('#voting_content').html('<?php if(($user["tpxzmos"]) == "1"): ?>您今日的票数已投完，请明日再投！<?php else: ?> 您本次活动的票数已投完，感谢您的参与！<?php endif; ?>');
-                        $('#voting').show();
-                    } else if (data == 105) {//此IP下今日已无法投票
-						$('#voting2').hide();
-						$('#voting_title').html('无法投票');
-						$('#voting_content').html('此IP今日票数已投完，请明日再投！');
-                        $('#voting').show();
-                    } else if (data == 103) {//投票还未开始
-						$('#voting2').hide();
-						$('#voting_title').html('投票还未开始');
-						$('#voting_content').html('请<?php echo (date('Y-m-d H:i:s',$vote["statdate"])); ?>后再来！');
-                        $('#voting').show();
-                    } else if (data == 104) {//投票已经结束
-					    $('#voting2').hide();
-						$('#voting_title').html('投票已经结束');
-						$('#voting_content').html('');
-                        $('#voting').show();
-                    } else if (data == 107) {//投票已经结束
-						$('#voting2').hide();
-						$('#voting_title').html('投票失败');
-						$('#voting_content').html('此作品无法投票，可能出于审核中或已被屏蔽！');
-                        $('#voting').show();
-                    } else if (data == 110) {//ip不在限制区域中
-						$('#voting2').hide();
-						$('#voting_title').html('投票失败');
-						$('#voting_content').html("仅允许 <?php echo ($user['area']); ?> 区域的用户投票！");  //不在允许投票区域的提示
-                        $('#voting').show();
-                    }else if (data == 111) {//投票已经结束
-						  $('#voting2').hide();
-						$('#voting_title').html('投票失败');
-						$('#voting_content').html('您不能投票给自己!');  //限制期内已给他投过提示
-                        $('#voting').show();
-                    }else if (data == 109) {//投票已经结束
-     					$('#voting2').hide();
-						$('#voting_title').html('投票失败');
-						$('#voting_content').html('<?php if(($user["tpxzmos"]) == "1"): ?>您已经投过啦，每天可投一次,明天再来吧!<?php else: ?> 您已经投过了，同一用户只能投票一次!<?php endif; ?>');  //限制期内已给他投过提示
-                        $('#voting').show();
-                    }else if (data == 120) {//报名期间达到投票限制数
-						$('#voting2').hide();
-						$('#voting_title').html('投票失败');
-						$('#voting_content').html('报名期内优先投票最多<?php echo ($vote["btcdxz"]); ?>票！正式投票为<?php echo date("Y-m-d H:i",$vote[statdate]); ?>开始，请到时再继续投票 感谢您的参与！');
-                        $('#voting').show();
-                    }else if (data == 888) {//编号投票
-						$('#voting2').hide();
-						$('#voting_title').html('进入公众号，回复“TP' +  self.data('itid') + '”给我投票哦！');
-						$('#voting_content').html('<a href="<?php echo ($vote['wxgzurl']); ?>" class="gz_btn">进入我们的公众号</a>');
-                        $('#voting').show();
-                    }
-                }
-            });
+            var zid = self.data('itid');
+            $arr[zid]=zid;
+
         });
+
+        function jjjjj
 
         var container = $('#pageCon ul');
 
@@ -624,7 +552,96 @@ $arr[4]=9;
                 itemSelector: '.picCon'
             });
         });
-    });<?php endif; ?>
+    });
+
+function remove_vote(id)
+{
+    $arr.splice(id, 1);
+}
+
+function submit_vote()
+{
+    //验证是否已选择10人
+    var len = $arr.length;
+    if (len != 10) {
+        alert('请选择10');
+        return;
+    }
+
+    $('#voting2').show();
+    $.ajax({
+        type: "POST",
+        url: "<?php echo U('Vote/ticket');?>",
+        cache: false,
+        data: {
+            arr:$arr,
+            zid:self.data('itid'),
+            vid:'<?php echo ($id); ?>',
+            token:'<?php echo ($token); ?>',
+            '__hash__':$('input[name="__hash__"]').val()
+
+        },
+        success: function(data) {
+            if (data == 102) {//未关注
+                $('#voting2').hide();
+                $('#guanzhu').show();
+            } else if (data == 108) {//投票成功
+                $('#voting2').hide();
+                $('#voted').show();
+            } else if (data == 106) {//此用户今日已无法投票
+                $('#voting2').hide();
+                $('#voting_title').html('无法投票');
+                $('#voting_content').html('<?php if(($user["tpxzmos"]) == "1"): ?>您今日的票数已投完，请明日再投！<?php else: ?> 您本次活动的票数已投完，感谢您的参与！<?php endif; ?>');
+                $('#voting').show();
+            } else if (data == 105) {//此IP下今日已无法投票
+                $('#voting2').hide();
+                $('#voting_title').html('无法投票');
+                $('#voting_content').html('此IP今日票数已投完，请明日再投！');
+                $('#voting').show();
+            } else if (data == 103) {//投票还未开始
+                $('#voting2').hide();
+                $('#voting_title').html('投票还未开始');
+                $('#voting_content').html('请<?php echo (date('Y-m-d H:i:s',$vote["statdate"])); ?>后再来！');
+                $('#voting').show();
+            } else if (data == 104) {//投票已经结束
+                $('#voting2').hide();
+                $('#voting_title').html('投票已经结束');
+                $('#voting_content').html('');
+                $('#voting').show();
+            } else if (data == 107) {//投票已经结束
+                $('#voting2').hide();
+                $('#voting_title').html('投票失败');
+                $('#voting_content').html('此作品无法投票，可能出于审核中或已被屏蔽！');
+                $('#voting').show();
+            } else if (data == 110) {//ip不在限制区域中
+                $('#voting2').hide();
+                $('#voting_title').html('投票失败');
+                $('#voting_content').html("仅允许 <?php echo ($user['area']); ?> 区域的用户投票！");  //不在允许投票区域的提示
+                $('#voting').show();
+            }else if (data == 111) {//投票已经结束
+                $('#voting2').hide();
+                $('#voting_title').html('投票失败');
+                $('#voting_content').html('您不能投票给自己!');  //限制期内已给他投过提示
+                $('#voting').show();
+            }else if (data == 109) {//投票已经结束
+                $('#voting2').hide();
+                $('#voting_title').html('投票失败');
+                $('#voting_content').html('<?php if(($user["tpxzmos"]) == "1"): ?>您已经投过啦，每天可投一次,明天再来吧!<?php else: ?> 您已经投过了，同一用户只能投票一次!<?php endif; ?>');  //限制期内已给他投过提示
+                $('#voting').show();
+            }else if (data == 120) {//报名期间达到投票限制数
+                $('#voting2').hide();
+                $('#voting_title').html('投票失败');
+                $('#voting_content').html('报名期内优先投票最多<?php echo ($vote["btcdxz"]); ?>票！正式投票为<?php echo date("Y-m-d H:i",$vote[statdate]); ?>开始，请到时再继续投票 感谢您的参与！');
+                $('#voting').show();
+            }else if (data == 888) {//编号投票
+                $('#voting2').hide();
+                $('#voting_title').html('进入公众号，回复“TP' +  self.data('itid') + '”给我投票哦！');
+                $('#voting_content').html('<a href="<?php echo ($vote['wxgzurl']); ?>" class="gz_btn">进入我们的公众号</a>');
+                $('#voting').show();
+            }
+        }
+    });
+}<?php endif; ?>
 
 </script>
 <div style="display:none;">
