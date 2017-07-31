@@ -18,6 +18,7 @@
 .slider{display:none;}
 .focus span{width:5px;height:5px;margin-left:5px;border-radius:50%;background:#CDCDCD;font-size:0}
 .focus span.current{background:red;}
+.showCheck {}
 </style>
 
 <style>
@@ -111,7 +112,7 @@ $(function() {
 var scroll = document.getElementById("scroll");
 var scroll1 = document.getElementById("scroll1");
 var scroll2 = document.getElementById("scroll2");
-scroll2.innerHTML=document.getElementById("scroll1").innerHTML;
+//scroll2.innerHTML=document.getElementById("scroll1").innerHTML;
 function Marquee(){
 if(scroll.scrollLeft-scroll2.offsetWidth>=0){
  scroll.scrollLeft-=scroll1.offsetWidth;
@@ -120,9 +121,9 @@ else{
  scroll.scrollLeft++;
 }
 }
-var myvar=setInterval(Marquee,30);
-scroll.onmouseout=function (){myvar=setInterval(Marquee,30);}
-scroll.onmouseover=function(){clearInterval(myvar);}
+//var myvar=setInterval(Marquee,30);
+//scroll.onmouseout=function (){myvar=setInterval(Marquee,30);}
+//scroll.onmouseover=function(){clearInterval(myvar);}
 </script>             
     </head>
 <body>
@@ -202,7 +203,7 @@ scroll.onmouseover=function(){clearInterval(myvar);}
         document.getElementById("SS").innerHTML = "00";;
     }
   }
-  setInterval("show()", 1000)
+  //setInterval("show()", 1000)
   
 
 </script>
@@ -568,15 +569,22 @@ var itid;
 <else/>
 var $arr = [];
     $(function(){
-        $('.vote').on('tap', function(e){
+        $('.vote').on('click', function(e){
             e.preventDefault();
             var self = $(e.target).closest('.vote');
             var zid = self.data('itid');
-            $arr[zid]=zid;
+            self.toggleClass('showCheck');
 
+            if (self.hasClass('showCheck')) {
+                self.css('background-image', "url(/tpl/check.png)");
+                $arr[zid] = zid;
+            } else {
+                self.css('background-image', "");
+                $arr[zid] = null;
+            }
+
+            console.log($arr);
         });
-
-        function jjjjj
 
         var container = $('#pageCon ul');
 
@@ -587,15 +595,25 @@ var $arr = [];
         });
     });
 
-function remove_vote(id)
+function check_user_num(arr)
 {
-    $arr.splice(id, 1);
+    var num = 0;
+    var $arr1 = [];
+    for (x in arr) {
+        if (arr[x] != null && arr[x] != 0 && arr[x] != '') {
+            ++ num;
+            $arr1[x] = arr[x];
+        }
+    }
+
+    $arr = $arr1;
+    return num;
 }
 
 function submit_vote()
 {
     //验证是否已选择10人
-    var len = $arr.length;
+    var len = check_user_num($arr);
     if (len != 10) {
         alert('请选择10');
         return;
