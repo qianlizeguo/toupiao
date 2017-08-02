@@ -177,10 +177,11 @@ afterBlur: function(){this.sync();}
 <form class="form" method="post" action=""   enctype="multipart/form-data">
 <?php if($vo['id'] != ''): ?><input type="hidden" name="id" value="<?php echo ($vo['id']); ?>"><?php endif; ?>
 <table class="userinfoArea" style=" margin:0;" border="0" cellspacing="0" cellpadding="0" width="100%"><tbody>
-<tr>
+<!--<tr>
 <th width="83">活动模板：</th>
 <td>
-<select name="moban">
+
+ <select name="moban" >
   <option value="1" <?php if(($vo["moban"]) == "1"): ?>selected<?php endif; ?>>模版一[淡红系]</option>
   <option value="3" <?php if(($vo["moban"]) == "3"): ?>selected<?php endif; ?>>模版三[草绿系]</option>
   <option value="4" <?php if(($vo["moban"]) == "4"): ?>selected<?php endif; ?>>模版四[淡蓝系]</option>
@@ -194,7 +195,9 @@ afterBlur: function(){this.sync();}
 </select>
 
 </td>
-</tr>
+</tr> -->
+<input type="hidden" name="moban" value="1">
+
 <tr>
 
 <tr>
@@ -247,26 +250,26 @@ afterBlur: function(){this.sync();}
 <th width="83">投票引导关注链接：</th>
 <td><input style="height:30px;width:750px;" type="text" name="wxgzurl" value="<?php echo ($vo["wxgzurl"]); ?>" class="px" style="width:550px;"><a href="<?php echo C('site_url');?>/shili/wxyd.htm" target=_blank>&nbsp;<span style="color:red;font-weight:400;font-size:12px;">点击查看示例</span></a><br><font color=red>(此链接去你的公众号后台素材管理里添加个引导关注素材，然后把素材链接填到这)<font></td>
 </tr>
-<tr>
+<!-- <tr>
 
 <th width="83">每个微信用户可投票数：</th>
 <td><input style="height:30px;width:250px;" type="text" name="tpnub" value="<?php echo ($vo["tpnub"]); ?>" class="px" style="width:550px;"><span style="color:red;font-weight:400;font-size:12px;">（可以限制每天投票数，也可以现在此次活动投票数 "投票设置"中可以设置票数分配规则！可设置每人每天给同一个作品只能投一票）</span></td>
-</tr>
+</tr> -->
 
-<tr>
+<!-- tr>
 <th width="83">同一个IP下每天能投多少票：</th>
 <td><input style="height:30px;width:250px;" type="text" name="ipnubs" value="<?php echo ($vo["ipnubs"]); ?>" class="px" style="width:550px;"><span style="color:red;font-weight:400;font-size:12px;">（防止死粉刷票，如果填写0则不限制）</span></td>
 </tr>
 <tr>
 <th width="83">报名期和投票期重叠的时间段每个作品的投票数限额：</th>
 <td><input style="height:30px;width:250px;" type="text" name="btcdxz" value="<?php echo ($vo["btcdxz"]); ?>" class="px" style="width:550px;"><span style="color:red;font-weight:400;font-size:12px;"><br>（又能报名又能投票期间每个作品最多能得多少票，填0为不限制！比如报名时间是 1-10号 投票时间是 5-30号，那么5-10号期间每个作品的最高票数只能是设置的这么多，这样可以防止前后报名作品的票数差距太大！）</span></td>
-</tr>
-<tr>
+</tr> -->
+<!-- <tr>
 <th>报名时间：<span style="color:red;font-weight:400;font-size:12px;"><br>（报名时间）</span></th>
 <td><input style="height:30px;width:150px" type="text" class="px" id="start_time" value="<?php if($vo['start_time'] != ''): echo (date("Y-m-d H:i",$vo["start_time"])); endif; ?>" onClick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm'})" name="start_time">
 到
 <input style="height:30px;width:150px" type="text" class="px" id="over_time" value="<?php if($vo['over_time'] != ''): echo (date("Y-m-d H:i",$vo["over_time"])); endif; ?>" name="over_time" onClick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm'})"></td>
-</tr>
+</tr> -->
 
 <tr>
 <th>投票时间：<span style="color:red;font-weight:400;font-size:12px;"><br>（投票时间）</span></th>
@@ -317,10 +320,10 @@ afterBlur: function(){this.sync();}
 <th width="83">虚拟报名数：</th>
 <td><input style="height:30px;width:150px;" type="area" name="xnbms" value="<?php echo ($vo["xnbms"]); ?>" class="px" style="width:550px;"> &nbsp;<span style="color:red;font-weight:400;font-size:12px;">首页报名的值为 真实报名数+虚拟报名数</span></td>
 </tr>
-<tr>
+<!-- <tr>
 <th width="83">无法在线报名帮助：</th>
 <td valign="top"><textarea  name="wfbmbz" style="width: 350px; height: 80px; "><?php if(empty($vo['wfbmbz'])){echo "若在线报名失败，可以将报名信息：姓名+联系方式+描述+宝贝照片（1~5张，至少1张）发给我们：qq:[填写客服qq]";}else{ echo html_entity_decode(htmlspecialchars_decode($vo['wfbmbz']));} ?> </textarea>
-</tr>
+</tr> -->
 <tr>
 <th valign="top">第三方统计代码</th>
 
@@ -328,19 +331,19 @@ afterBlur: function(){this.sync();}
 </td>
 </tr>
 <tr>
-<th width="83">首页背景音乐：</th>
+<!-- <th width="83">首页背景音乐：</th>
 <td><input style="height:30px;width:750px;" type="text" name="music" value="<?php echo ($vo["music"]); ?>" class="px" style="width:550px;"></td>
  </tr>
- <tr>
+ <tr> -->
 <th width="83">首页顶部公告：</th>
 <td><input style="height:30px;width:750px;" type="text" name="gonggao" value="<?php echo ($vo["gonggao"]); ?>" class="px" style="width:550px;"></td>
  </tr>
-<tr>
+<!-- <tr>
 <th valign="top">被投票时自动通知模板</th>
 
 <td valign="top"><textarea  name="sms_content" style="width: 650px; height: 70px; "><?php echo html_entity_decode(htmlspecialchars_decode($vo['sms_content'])); ?> </textarea>
 变量类型：{frend} 好友名，{vcount}当前票数，{num}当前排名，{diffmaxcount}与第一名差距,{diffmincount}与上一名差距</td>
-</tr>
+</tr> -->
 <script type="text/javascript">
 $(document).ready(function(){
 });

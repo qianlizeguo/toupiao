@@ -38,7 +38,8 @@
          <div class="num_box">
             <?php if($ishavezp == 1): ?><a href="<?php echo U('Vote/detail',array('token'=>$token,'id'=>$id,'zid'=>$havezpid));?>" class="join_us">我的参赛</a>
 			<?php else: ?>
-			<?php if($istime == 1): ?><a href="<?php echo U('Vote/signup',array('token'=>$token,'id'=>$id));?>" class="join_us">我要报名</a><?php endif; endif; ?>          
+			<!-- <?php if($istime == 1): ?><a href="#" class="join_us">排名</a><?php endif; endif; ?>  -->
+            <div style="margin:10px;"></div>           
             <ul class="num_box_ul">
                 <li>
                     <span class="text">已报名</span>
@@ -59,10 +60,11 @@
     <form action="<?php echo U('Vote/search');?>" id="search_form" method="post" accept-charset="utf-8">
     <input type="hidden" name="id" value="<?php echo ($id); ?>" />
 	<input type="hidden" name="token" value="<?php echo ($token); ?>" />
-        <div class="search_con">
+        <!--<div class="search_con">
             <div class="btn"><input type="submit" name="seachid" id="searchBtn" value="搜索"></div>
             <div class="text_box"><input type="search" id="searchText" value="" name="keyword" placeholder="请输入选手姓名或编号" autocomplete="off"></div>
         </div>
+        -->
     </form>
 </div>    </div>
 </header>
@@ -105,22 +107,22 @@
     </style>
     <div class="rank300" id="top300">
 <ul>
-<li class="rank-head"><span style="width:18%;">排名</span><span style="width:12%;">编号</span><span style="display:inline-block;width:23%" >选手</span><span style="width:22%;">取消关注数</span><span style="width:25%;">最终票数</span></li>
+    <li class="rank-head"><span style="width:22%;">排名</span><!--<span style="width:12%;">编号</span>--><span style="display:inline-block;width:35%" >选手</span><!--<span style="width:22%;">取消关注数</span>--><span style="width:35%;">最终票数</span></li>
 <?php if(is_array($phlist)): $i = 0; $__LIST__ = $phlist;if( count($__LIST__)==0 ) : echo "" ;else: foreach($__LIST__ as $key=>$list): $mod = ($i % 2 );++$i;?><a href="<?php echo U('Vote/detail',array('token'=>$token,'id'=>$id,'zid'=>$list['id']));?>" >
-<li class="list"><span style="width:18%;"><?php echo ($i); ?></span><span style="width:12%;"><?php echo ($list['id']); ?></span><span style="display:inline-block;width:23%"><?php echo ($list['item']); ?></span><span style="width:22%;color:#f67685"><?php echo ($list['dcount']); ?></span><span style="width:25%;color:#f67685"><?php echo ($list['vcount']); ?></span></li></a><?php endforeach; endif; else: echo "" ;endif; ?>
+     <li class="list"><span style="width:22%;"><?php echo ($i); ?></span><!--<span style="width:12%;"><?php echo ($list['id']); ?></span>--><span style="display:inline-block;width:35%"><?php echo ($list['item']); ?></span><!--<span style="width:22%;color:#f67685"><?php echo ($list['dcount']); ?></span>--><span style="width:35%;color:#f67685"><?php echo ($list['vcount']); ?></span></li></a><?php endforeach; endif; else: echo "" ;endif; ?>
  
         </ul>
     </div>
 
     <div class="pagination pagination-centered" style="margin-top:20px"> 
-<ul>
+<!--<ul>
 <li class="active"><a href="javascript:JumpPage(1);">1-100</a></li>
 <li><a href="javascript:JumpPage(2);">101-200</a></li>
 <li><a href="javascript:JumpPage(3);">201-300</a></li>
-</ul></div>
+</ul>--></div>
 </section>
 <img class="bg" src="<?php echo STATICS;?>/vote/index<?php echo ($vote['moban']); ?>/mw_005.jpg" />
-<section class="rules">
+<section class="rules" style="display:none">
   <div class="text">
  <?php if(!empty($vote["shumat"])): ?><div class="prize"><?php echo ($vote['shumat']); ?></div>
             <div class="neirong"><?php  echo html_entity_decode(htmlspecialchars_decode($vote['shuma'])); ?></div><?php endif; ?>

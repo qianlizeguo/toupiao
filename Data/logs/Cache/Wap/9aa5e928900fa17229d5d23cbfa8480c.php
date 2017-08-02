@@ -43,7 +43,7 @@
 </style>
 
 <style>
-            /*闊充箰鍥炬爣*/
+            /*闊充箰鍥炬爣
             #audio_btn {
                 position: absolute;
                 right: 10px;
@@ -120,9 +120,11 @@
                 background-repeat: no-repeat;
                 background-position: center center;
             }
+            */
 </style>
 
 <script>
+/*
 $(function() {
                     var audio = $('#media');
                     audio[0].play();
@@ -145,6 +147,7 @@ else{
 var myvar=setInterval(Marquee,30);
 scroll.onmouseout=function (){myvar=setInterval(Marquee,30);}
 scroll.onmouseover=function(){clearInterval(myvar);}
+*/
 </script>
                 
     </head>
@@ -181,7 +184,7 @@ scroll.onmouseover=function(){clearInterval(myvar);}
             <span class="fr">排名：<?php echo ($mingci); ?>&nbsp;&nbsp;&nbsp;&nbsp; 票数：<?php echo ($zpinfo['vcount']); ?></span>
         </p>
         <div class="blank10"></div>
-        <p>作品简介：<?php echo ($zpinfo['intro']); ?></p>
+        <p>简介：<?php echo ($zpinfo['intro']); ?></p>
         <div class="blank10"></div>
         				<?php if(!empty($zpinfo["startpicurl"])): ?><img src="<?php echo ($zpinfo['startpicurl']); ?>" alt=""><?php endif; ?>
 					   <?php if(!empty($zpinfo["startpicurl2"])): ?><img src="<?php echo ($zpinfo['startpicurl2']); ?>" alt=""><?php endif; ?>
@@ -195,12 +198,13 @@ scroll.onmouseover=function(){clearInterval(myvar);}
               <img src="<?php echo STATICS;?>/guide.png" />
      </div>
     <div class="abtn_box">
-        <?php if(($zpinfo["status"]) == "1"): ?><a href="" class="a_btn toupiao vote" id="vote" data-itid="<?php echo ($zpinfo['id']); ?>">我要投票</a><?php endif; ?>
+        <!--<?php if(($zpinfo["status"]) == "1"): ?><a href="" class="a_btn toupiao vote" id="vote" data-itid="<?php echo ($zpinfo['id']); ?>">我要投票</a><?php endif; ?>-->
 		<a href="javascript:void(0)" onclick="$('#mcover').show()" class="a_btn" >帮TA拉票</a>
-        <?php if(empty($ishavezp)): ?><a href="<?php echo U('Vote/signup',array('token'=>$token,'id'=>$id));?>" class="a_btn canjia">我也来参加</a><?php endif; ?> 
-        <a href="<?php echo U('Vote/index',array('token'=>$token,'id'=>$id));?>" class="a_btn look">点击查看更多</a>
+        <!--<?php if(empty($ishavezp)): ?><a href="<?php echo U('Vote/signup',array('token'=>$token,'id'=>$id));?>" class="a_btn canjia">我也来参加</a><?php endif; ?>--> 
+        <!--<a href="<?php echo U('Vote/index',array('token'=>$token,'id'=>$id));?>" class="a_btn look">点击查看更多</a>-->
     </div>
 </section>
+<!--
 <section class="rules">
   <div class="text">
    <?php if(!empty($vote["shumat"])): ?><div class="prize"><?php echo ($vote['shumat']); ?></div>
@@ -212,7 +216,7 @@ scroll.onmouseover=function(){clearInterval(myvar);}
   <?php if(!empty($vote["shumct"])): ?><div class="prize"><?php echo ($vote['shumct']); ?></div>
             <div class="neirong"><?php  echo html_entity_decode(htmlspecialchars_decode($vote['shumc'])); ?></div><?php endif; ?>
 </div>
- 
+ -->
    
 <?php if(!empty($user["duoshuo"])): ?><div class="text">   
 <!-- 多说评论框 start -->
@@ -301,11 +305,13 @@ var duoshuoQuery = {short_name:"<?php echo ($user['duoshuourl']); ?>"};
 <div class="bot_main">
   <ul>
    <li class="ico_1"><span class="ico"><img src="<?php echo STATICS;?>/vote//index2/i1.png" /></span><span class="txt">首页</span></li>
-    <li class="ico_2"><span class="ico"><img src="<?php echo STATICS;?>/vote//index2/i3.png" /></span><span class="txt">排名</span></li>
-    <li class="ico_3"><span class="ico"><img src="<?php echo STATICS;?>/vote//index2/i11.png" /></span><span class="txt"><?php if(!empty($ishavezp)): ?>我的<?php else: ?>报名<?php endif; ?></span></li>
+    <li class="ico_2"><span class="ico"><img src="<?php echo STATICS;?>/vote//index2/i3.png" /></span><span class="txt">排行榜</span></li>
+    <!--<li class="ico_3"><span class="ico"><img src="<?php echo STATICS;?>/vote//index2/i11.png" /></span><span class="txt"><?php if(!empty($ishavezp)): ?>我的<?php else: ?>报名<?php endif; ?></span></li>
      <?php if($user['tpjl']==1 && $user['tpjlnum'] > 0 && $user['gldzpid'] != 0): ?><li class="ico_4"><span class="ico"><img src="<?php echo STATICS;?>/vote/index2/i4.png" /></span><span class="txt">免费抽奖</span></li>
    <?php else: ?>
 	<li class="ico_4"><span class="ico"><img src="<?php echo STATICS;?>/vote/index2/i4.png" /></span><span class="txt"><?php echo ($user["dbdhm"]); ?></span></li><?php endif; ?>
+    -->
+    <li class="ico_4"><span class="ico"><img src="<?php echo STATICS;?>/vote//index2/i11.png" /></span><span class="txt">活动规则</span></li>
   </ul>
 </div>
 

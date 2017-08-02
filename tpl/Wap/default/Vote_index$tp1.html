@@ -18,11 +18,19 @@
 .slider{display:none;}
 .focus span{width:5px;height:5px;margin-left:5px;border-radius:50%;background:#CDCDCD;font-size:0}
 .focus span.current{background:red;}
+.vote_com{position: fixed;bottom: 10%;z-index:9999;width:5em;height:5em;border-radius: 4rem;background-color:#f9493c;right: 2%;cursor: pointer;color: white;}
+.vote_f{margin:16px 18px;}
+.vote_mod{position: fixed;width: 300px;border: 1px solid black;height: 200px;z-index: 666;background-color: white;margin:50% 13% ; display: none;border-radius: 15px;}
+.vote_bor{position: absolute;width: 100%;height: 140%;top: 0;left: 0;background-color: #000;opacity: 0.5;z-index: 66;display: none;}
+.vote_back{ width:60px;height: 35px;background-color:#19a1d2;margin-top:145px;margin-left: 230px;cursor: pointer;border-radius: 15px;color:white;clear: both;}
+.vote_commit{ border-radius: 15px;width:60px;height: 35px;background-color: red;cursor: pointer;margin-top: -30px;margin-right:-100px;color: white;}
 .showCheck {}
+.mengceng {z-index:6666}
+.pop_up {z-index:9999}
 </style>
 
 <style>
-            /*闊充箰鍥炬爣*/
+            /*闊充箰鍥炬爣
             #audio_btn {
                 position: absolute;
                 right: 10px;
@@ -99,9 +107,11 @@
                 background-repeat: no-repeat;
                 background-position: center center;
             }
+            */
 </style>   
 
 <script>
+/*
 $(function() {
                     var audio = $('#media');
                     audio[0].play();
@@ -124,12 +134,19 @@ else{
 //var myvar=setInterval(Marquee,30);
 //scroll.onmouseout=function (){myvar=setInterval(Marquee,30);}
 //scroll.onmouseover=function(){clearInterval(myvar);}
+*/
 </script>             
     </head>
 <body>
-<div style="width:100%;height:25px;background:rgba(0,0,0,0.6); position:fixed;top:0;z-index:2000; line-height:25px;display:none;">
-<marquee id="gonggao" style="font-size:16px;color:white;z-index:2000;" behavior="scroll" scrolldelay="170">{iMicms:$vote.gonggao}</marquee>
+<div class="vote_com"><h3 class="vote_f">提交<br>结果</h3></div>
+<div class="vote_bor"></div>
+<div class="vote_mod">
+    <!-- <div class="vote_commit"><h3 style="line-height: 200%;margin-left: 12px;">提交</h3></div> -->
+    <div class="">
+    </div>
+    <div class="vote_back"><h3 style="margin:15px 12px;line-height: 200%;">返回</h3></div>
 </div>
+
 
 <div class="video_exist play_yinfu" id="audio_btn" style="display: block;">
 <div id="yinfu" class="rotate"></div>
@@ -156,7 +173,11 @@ else{
         <div class="num_box">
             <if condition="$ishavezp eq 1"><a href="{iMicms::U('Vote/detail',array('token'=>$token,'id'=>$id,'zid'=>$havezpid))}" class="join_us">我的参赛</a>
 			<else/>
-			<if  condition="$istime eq 1"><a href="{iMicms::U('Vote/signup',array('token'=>$token,'id'=>$id))}" class="join_us">我要报名</a></if></if>          
+			<if  condition="$istime eq 1">
+                <div></div>
+            <!-- <a href="{iMicms::U('Vote/signup',array('token'=>$token,'id'=>$id))}" class="join_us">我要报名</a> -->
+            
+            </if></if>  <div style="margin:10px;"></div>        
             <ul class="num_box_ul">
                 <li>
                     <span class="text">已报名</span>
@@ -203,15 +224,18 @@ else{
         document.getElementById("SS").innerHTML = "00";;
     }
   }
-  //setInterval("show()", 1000)
+  setInterval("show()", 1000)
   
 
 </script>
-<!--<div style="width:100%;height:30px;line-height:30px;text-align:center;position:relative;margin-bottom:30px;color:#fff;opacity:0.7; ">
-  距离活动结束还剩:<strong id="DD"></strong>天 <strong id="HH"></strong>时 <strong id="MM"></strong>分 <strong id="SS"></strong>秒
-  </div>-->
+<div  style="width:100%;height:30px;line-height:30px;text-align:center;position:relative;margin-bottom:30px;color:#ff756b;opacity:0.7; ">
+  距离投票结束还剩:<strong id="DD"></strong>天 <strong id="HH"></strong>时 <strong id="MM"></strong>分 <strong id="SS"></strong>秒
+  </div>
+  </style>
             <img src="{iMicms::STATICS}/vote/index{iMicms:$vote['moban']}/mw_004.jpg" />
-        </div>
+        </div><div style="width:100%;height:25px;background:rgba(0,0,0,0.6); position:absolute;margin-top:0px;z-index:2000; line-height:25px;">
+<marquee id="gonggao" style="font-size:16px;color:white;z-index:2000;" behavior="scroll" scrolldelay="170">{iMicms:$vote.gonggao}</marquee>
+</div>
         <div class="search">
     <form action="{iMicms::U('Vote/search')}" id="search_form" method="post" accept-charset="utf-8">
     <input type="hidden" name="id" value="{iMicms:$id}" />
@@ -259,9 +283,8 @@ else{
     <!--<div class="pagination pagination-centered"> <ul>{iMicms:$page_string}</ul></div>-->
 </section>
 <img class="bg" src="{iMicms::STATICS}/vote/index{iMicms:$vote['moban']}/mw_005.jpg" />
-
-<section class="rules" style="display:none">
-<div class="text">
+<section class="rules" >
+<!-- <div class="text">
   <notempty name="vote.shumat">
             <div class="prize">{iMicms:$vote['shumat']}</div>
             <div class="neirong"><?php 
@@ -274,7 +297,7 @@ else{
 	echo html_entity_decode(htmlspecialchars_decode($vote['shumb']));  
 	?></div>
    	 </notempty>
-</div>
+</div> -->
 <div class="text">
   <notempty name="vote.shumct">
        <div class="prize">{iMicms:$vote['shumct']}</div>
@@ -302,9 +325,19 @@ else{
         <div class="pop_up">
             <span class="closed close_pop_up" id="toupiaook">&nbsp;</span>
             <p class="tit_p" id="dia_title">投票成功!</p>
-            <p class="tit_txt" id="content">恭喜您为您支持的作品投上了一票！</p>                   <!-- 投票奖励积分说明 -->
+            <p class="tit_txt" id="content">感谢您的参与！</p>                   <!-- 投票奖励积分说明 -->
             <if condition="$user['tpjl']==1 && $user['tpjlnum'] gt 0"><p class="tit_txt" id="content">恭喜您获得{iMicms:$user['tpjlnum']}点积分</p></if>
             <if condition="$user['tpjl']==1 && $user['tpjlnum'] gt 0 && $user['gldzpid'] neq null" > <a href="{iMicms::U('Wap/Lottery/index',array('token'=>$token,'id'=>$user['gldzpid']))}" class="gz_btn">快去花积分，抽大奖吧！</a></if>  <!-- 奖励积分消费活动链接  奖励积分消费活动说明 -->
+            <p class="tit_txt" id="subcontent"></p>
+        </div>
+    </div>
+
+    <div class="pop" id="content_vote" style="display:none;">
+        <div class="mengceng"></div>
+        <div class="pop_up">
+            <span class="closed close_pop_up" id="toupiaook">&nbsp;</span>
+            <p class="tit_p" id="dia_title">提示信息!</p>
+            <p class="tit_txt" id="content">恭喜您为您支持的作品投上了一票！</p>                   <!-- 投票奖励积分说明 -->
             <p class="tit_txt" id="subcontent"></p>
         </div>
     </div>
@@ -465,6 +498,7 @@ $('.ico_4').on('click', function(){
 
 <script type="text/javascript">
 
+
 <eq name='user.yzm' value='1'>
 
 function gt_custom_ajax(result, selector, message) {
@@ -568,6 +602,7 @@ var itid;
     });
 <else/>
 var $arr = [];
+var _wxd_openid = '{iMicms:$_wxd_openid}';
     $(function(){
         $('.vote').on('click', function(e){
             e.preventDefault();
@@ -577,10 +612,10 @@ var $arr = [];
 
             if (self.hasClass('showCheck')) {
                 self.css('background-image', "url(/tpl/check.png)");
-                $arr[zid] = zid;
+                $arr.push(zid);
             } else {
                 self.css('background-image', "");
-                $arr[zid] = null;
+				removeByValue($arr, zid);
             }
 
             console.log($arr);
@@ -595,27 +630,49 @@ var $arr = [];
         });
     });
 
+function removeByValue(arr, val) {
+  for(var i=0; i<arr.length; i++) {
+    if(arr[i] == val) {
+      arr.splice(i, 1);
+      break;
+    }
+  }
+}
+
+var arr_str='';
 function check_user_num(arr)
 {
     var num = 0;
-    var $arr1 = [];
-    for (x in arr) {
-        if (arr[x] != null && arr[x] != 0 && arr[x] != '') {
+    arr_str = '';
+    for (var i=0;i<arr.length;i++) {
+        if (arr[i] != null && arr[i] != 0 && arr[i] != '') {
             ++ num;
-            $arr1[x] = arr[x];
+            if (num == 1) {
+                arr_str += arr[i];
+            } else {
+
+                arr_str += "," + arr[i];
+            }
         }
     }
 
-    $arr = $arr1;
     return num;
 }
 
 function submit_vote()
 {
+    //验证是否关注公众号
+    if (_wxd_openid == '' || _wxd_openid == 0) {
+        $('#voting2').hide();
+        $('#guanzhu').show();
+        return;
+    }
+
     //验证是否已选择10人
     var len = check_user_num($arr);
-    if (len != 10) {
-        alert('请选择10');
+    var need_num = 10;
+    if (len != need_num) {
+        show_msg('请选择十位标兵再提交投票');
         return;
     }
 
@@ -625,8 +682,9 @@ function submit_vote()
         url: "{iMicms::U('Vote/ticket')}",
         cache: false,
         data: {
-            arr:$arr,
-            zid:self.data('itid'),
+            //arr:$arr,
+            arr_str:arr_str,
+            //zid:self.data('itid'),
             vid:'{iMicms:$id}',
             token:'{iMicms:$token}',
             '__hash__':$('input[name="__hash__"]').val()
@@ -689,7 +747,17 @@ function submit_vote()
                 $('#voting_title').html('进入公众号，回复“TP' +  self.data('itid') + '”给我投票哦！');
                 $('#voting_content').html('<a href="{iMicms:$vote['wxgzurl']}" class="gz_btn">进入我们的公众号</a>');
                 $('#voting').show();
-            }
+           } else if (data == 201) {
+                $('#voting2').hide();
+                $('#voting_title').html('投票提示');
+                $('#voting_content').html('请您选择10人进行投票');
+                $('#voting').show();
+           } else if (data == 900) {
+                $('#voting2').hide();
+                $('#voting_title').html('投票提示');
+                $('#voting_content').html('请在微信中打开,并投票');
+                $('#voting').show();
+           }
         }
     });
 }
@@ -732,10 +800,81 @@ function submit_vote()
 	_fresh();
 </script>
 </notempty>
+<script type="text/javascript">
+$(function () {
+    $('vote_bor').css("height",$('body').css("height"));
+    if (window.screen.width<320) {
+        $('.vote_mod').css("margin-left","3%");
+        console.log(window.screen.width);
+    }
+    if(window.screen.width>321&window.screen.width<400) {
+        $('.vote_mod').css("margin-left","10%");
+        console.log(window.screen.width);
+    }
+    if (window.screen.width>400) {
+        $('.vote_mod').css("margin-left","15%");
+        console.log(window.screen.width);
+    }
 
+})
+
+function show_msg(msg)
+{
+    var obj = $("#content_vote");
+    obj.find("#content").html(msg);
+    obj.show();
+
+    /*$('.vote_mod').css({
+        'opacity': '1',
+        'transition': '0.5s',
+        'display': 'block'
+    });
+    $('.vote_bor').css({
+        'opacity': '0.5',
+        'transition': '0.5s',
+        'display': 'block'
+    });
+    */
+}
+
+    $('.vote_com').click(function() {
+         submit_vote();
+    });
+    $('.vote_back').click(function() {
+        $('.vote_mod').css({
+            'opacity': '0',
+            'display': 'none'
+        });
+         $('.vote_bor').css({
+            'opacity': '0',
+            'display': 'none'
+        });
+    });
+    $('.vote_commit').click(function() {
+        alert(2);
+    });
+    $('.vote_bor').click(function() {
+        $('.vote_mod').css({
+            'opacity': '0',
+            'display': 'none'
+        });
+         $('.vote_bor').css({
+            'opacity': '0',
+            'display': 'none'
+        });
+    });
+
+    /*$(".content .list_box li img:even").css(
+
+            {'height':'235px',
+                'overflow':'hidden'}
+            );
+            */
+</script>
 <div style="display:none">
 <?php 
-	echo html_entity_decode(htmlspecialchars_decode($vote['cnzz']));  
+	echo html_entity_decode(htmlspecialchars_decode($vote['cnzz'])); 
+    //echo "<script>alert('",serialize($_COOKIE),"');</script>";
 	?>
 	</div></body>
 </html>

@@ -319,7 +319,7 @@ class VoteAction extends UserAction
             $IIIIIllIl1I1['gonggao'] = $this->_post('gonggao');
             $IIIIIllIl1I1['wappicurl'] = $this->_post('wappicurl');
             $IIIIIllIl1I1['ydgzts'] = $this->_post('ydgzts');
-            $IIIIIllIl1I1['wxgzurl'] = $this->_post('wxgzurl');
+            $IIIIIllIl1I1['wxgzurl'] = $_POST['wxgzurl'];
             $IIIIIllIl1I1['tpnub'] = $this->_post('tpnub');
             $IIIIIllIl1I1['ipnubs'] = $this->_post('ipnubs');
             $IIIIIllIl1I1['btcdxz'] = $this->_post('btcdxz');

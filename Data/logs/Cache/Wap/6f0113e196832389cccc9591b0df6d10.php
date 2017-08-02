@@ -40,7 +40,8 @@
         <div class="num_box">
             <?php if($ishavezp == 1): ?><a href="<?php echo U('Vote/detail',array('token'=>$token,'id'=>$id,'zid'=>$havezpid));?>" class="join_us">我的参赛</a>
 			<?php else: ?>
-			<?php if($istime == 1): ?><a href="<?php echo U('Vote/signup',array('token'=>$token,'id'=>$id));?>" class="join_us">我要报名</a><?php endif; endif; ?>          
+			<?php if($istime == 1): ?><!-- <a href="#" class="join_us">排名</a> -->
+            <div style="margin:10px;"></div><?php endif; endif; ?>          
             <ul class="num_box_ul">
                 <li>
                     <span class="text">已报名</span>
@@ -91,7 +92,7 @@
                                    <?php echo ($li["item"]); ?><br/>
                                    <?php echo ($li["vcount"]); ?>票
                                 </p>
-                                <a href="" class="vote" data-itid="<?php echo ($li["id"]); ?>" data-vote_num="<?php echo ($li["id"]); ?>" data-rule_id="<?php echo ($li["id"]); ?>">投票</a>
+                                <!--<a href="" class="vote" data-itid="<?php echo ($li["id"]); ?>" data-vote_num="<?php echo ($li["id"]); ?>" data-rule_id="<?php echo ($li["id"]); ?>">投票</a>-->
                             </div>
                         </div>
                     </li><?php endforeach; endif; else: echo "" ;endif; ?>

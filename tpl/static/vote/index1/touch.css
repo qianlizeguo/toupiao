@@ -261,7 +261,7 @@ img {-ms-interpolation-mode: bicubic; }
 .rules .text .neirong p{color: #ec6941; font-size: 14px; padding: 15px;}
 .rules .text .neirong img{ width:100%; height:auto;}
 
-img.bg{width: 100%;display: block;margin-bottom:42px}
+img.bg{width: 100%;display: block;}
 input[type="button"], input[type="submit"] {-webkit-appearance: none;}
 
 .review {
@@ -289,4 +289,8 @@ input[type="button"], input[type="submit"] {-webkit-appearance: none;}
     top: -10px;
     z-index: 999;
     right: 5px;
+}
+.content .list_box li img:nth-of-type(odd){
+    height:215px;
+    overflow:hidden;
 }

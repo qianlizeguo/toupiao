@@ -43,7 +43,7 @@
 </style>
 
 <style>
-            /*闊充箰鍥炬爣*/
+            /*闊充箰鍥炬爣
             #audio_btn {
                 position: absolute;
                 right: 10px;
@@ -120,9 +120,11 @@
                 background-repeat: no-repeat;
                 background-position: center center;
             }
+            */
 </style>
 
 <script>
+/*
 $(function() {
                     var audio = $('#media');
                     audio[0].play();
@@ -145,6 +147,7 @@ else{
 var myvar=setInterval(Marquee,30);
 scroll.onmouseout=function (){myvar=setInterval(Marquee,30);}
 scroll.onmouseover=function(){clearInterval(myvar);}
+*/
 </script>
                 
     </head>
@@ -190,7 +193,7 @@ scroll.onmouseover=function(){clearInterval(myvar);}
             <span class="fr">排名：{iMicms:$mingci}&nbsp;&nbsp;&nbsp;&nbsp; 票数：{iMicms:$zpinfo['vcount']}</span>
         </p>
         <div class="blank10"></div>
-        <p>作品简介：{iMicms:$zpinfo['intro']}</p>
+        <p>简介：{iMicms:$zpinfo['intro']}</p>
         <div class="blank10"></div>
         				<notempty name="zpinfo.startpicurl">
                         	                          
@@ -224,12 +227,13 @@ scroll.onmouseover=function(){clearInterval(myvar);}
               <img src="{iMicms::STATICS}/guide.png" />
      </div>
     <div class="abtn_box">
-        <eq name="zpinfo.status" value="1"><a href="" class="a_btn toupiao vote" id="vote" data-itid="{iMicms:$zpinfo['id']}">我要投票</a></eq>
+        <!--<eq name="zpinfo.status" value="1"><a href="" class="a_btn toupiao vote" id="vote" data-itid="{iMicms:$zpinfo['id']}">我要投票</a></eq>-->
 		<a href="javascript:void(0)" onclick="$('#mcover').show()" class="a_btn" >帮TA拉票</a>
-        <empty name='ishavezp' ><a href="{iMicms::U('Vote/signup',array('token'=>$token,'id'=>$id))}" class="a_btn canjia">我也来参加</a></empty> 
-        <a href="{iMicms::U('Vote/index',array('token'=>$token,'id'=>$id))}" class="a_btn look">点击查看更多</a>
+        <!--<empty name='ishavezp' ><a href="{iMicms::U('Vote/signup',array('token'=>$token,'id'=>$id))}" class="a_btn canjia">我也来参加</a></empty>--> 
+        <!--<a href="{iMicms::U('Vote/index',array('token'=>$token,'id'=>$id))}" class="a_btn look">点击查看更多</a>-->
     </div>
 </section>
+<!--
 <section class="rules">
   <div class="text">
    <notempty name="vote.shumat">
@@ -253,7 +257,7 @@ scroll.onmouseover=function(){clearInterval(myvar);}
 	?></div>
    </notempty>
 </div>
- 
+ -->
    
 <notempty name="user.duoshuo">
 <div class="text">   
@@ -348,13 +352,15 @@ var duoshuoQuery = {short_name:"{iMicms:$user['duoshuourl']}"};
 <div class="bot_main">
   <ul>
    <li class="ico_1"><span class="ico"><img src="{iMicms::STATICS}/vote//index2/i1.png" /></span><span class="txt">首页</span></li>
-    <li class="ico_2"><span class="ico"><img src="{iMicms::STATICS}/vote//index2/i3.png" /></span><span class="txt">排名</span></li>
-    <li class="ico_3"><span class="ico"><img src="{iMicms::STATICS}/vote//index2/i11.png" /></span><span class="txt"><notempty name='ishavezp' >我的<else/>报名</notempty></span></li>
+    <li class="ico_2"><span class="ico"><img src="{iMicms::STATICS}/vote//index2/i3.png" /></span><span class="txt">排行榜</span></li>
+    <!--<li class="ico_3"><span class="ico"><img src="{iMicms::STATICS}/vote//index2/i11.png" /></span><span class="txt"><notempty name='ishavezp' >我的<else/>报名</notempty></span></li>
      <if condition="$user['tpjl']==1 && $user['tpjlnum'] gt 0 && $user['gldzpid'] neq 0" >
    <li class="ico_4"><span class="ico"><img src="{iMicms::STATICS}/vote/index2/i4.png" /></span><span class="txt">免费抽奖</span></li>
    <else/>
 	<li class="ico_4"><span class="ico"><img src="{iMicms::STATICS}/vote/index2/i4.png" /></span><span class="txt">{iMicms:$user.dbdhm}</span></li>
 	</if>
+    -->
+    <li class="ico_4"><span class="ico"><img src="{iMicms::STATICS}/vote//index2/i11.png" /></span><span class="txt">活动规则</span></li>
   </ul>
 </div>
 

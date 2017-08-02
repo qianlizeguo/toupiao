@@ -3,12 +3,18 @@ class VoteAction extends BaseAction
 {
     public function _initialize()
     {
-        /*
-        if(!strpos($_SERVER['HTTP_USER_AGENT'],"MicroMessenger")) {
-        header('Location:http://www.qq.com');
-        	EXIT;
+        //查看cookie里是否有openid
+        //$_COOKIE['wxd_openid'] = null;
+        //echo $_COOKIE['wxd_openid'];
+        //echo $_SESSION['wxd_openid'];
+        //echo $_SESSION['is_no_gz'];
+        //die;
+
+        if (!$_SESSION['wxd_openid'] && !$_COOKIE['wxd_openid']) {
+            $this->get_wx_user_info();
         }
         
+        /*
         if(!strpos($_SERVER['SERVER_NAME'],'m.')&&empty($_POST)){
         	header('Location:'.$_SERVER["HTTP_HOST"]);	
         	exit;
@@ -21,99 +27,104 @@ class VoteAction extends BaseAction
     protected $user_is_gz = 0;
     public function index()
     {
-        $IIIIIllI1l1l = $_GET['id'];
-        $IIIIIIIIlIlI = $_GET['token'];
+        $_vid = $_GET['id'];
+        $_token = $_GET['token'];
         $IIIII11IIIIl = $_GET['isappinstalled'];
         $IIIIIl1Il1l1 = $_GET['from'];
         if (!isset($IIIIIl1Il1l1) && !isset($IIIII11IIIIl)) {
             if (empty($_COOKIE['wxd_openid'])) {
                 if (isset($_GET['wecha_id'])) {
-                    $IIIIIIlIlIll = $_GET['wecha_id'];
-                    setcookie('wxd_openid', $IIIIIIlIlIll, time() + 31536000);
-                    setcookie('dzp_openid', $IIIIIIlIlIll, time() + 31536000);
+                    $_wxd_openid = $_GET['wecha_id'];
+                    setcookie('wxd_openid', $_wxd_openid, time() + 31536000);
+                    setcookie('dzp_openid', $_wxd_openid, time() + 31536000);
                     /*
-                    setcookie('wxd_openid',$IIIIIIlIlIll,time()+31536000,'/','.m.nckyjy.com');
-                    setcookie('dzp_openid',$IIIIIIlIlIll,time()+31536000,'/','.m.nckyjy.com');
+                    setcookie('wxd_openid',$_wxd_openid,time()+31536000,'/','.m.nckyjy.com');
+                    setcookie('dzp_openid',$_wxd_openid,time()+31536000,'/','.m.nckyjy.com');
                     */
-                    $this->redirect('Wap/Vote/index', array('id' => $IIIIIllI1l1l, 'token' => $IIIIIIIIlIlI));
+                    $this->redirect('Wap/Vote/index', array('id' => $_vid, 'token' => $_token));
                     die;
                 }
             } else {
                 if (isset($_GET['wecha_id'])) {
                     if ($_GET['wecha_id'] != $_COOKIE['wxd_openid']) {
-                        $IIIIIIlIlIll = $_GET['wecha_id'];
-                        setcookie('wxd_openid', $IIIIIIlIlIll, time() + 31536000);
-                        setcookie('dzp_openid', $IIIIIIlIlIll, time() + 31536000);
+                        $_wxd_openid = $_GET['wecha_id'];
+                        setcookie('wxd_openid', $_wxd_openid, time() + 31536000);
+                        setcookie('dzp_openid', $_wxd_openid, time() + 31536000);
                     }
-                    $this->redirect('Wap/Vote/index', array('id' => $IIIIIllI1l1l, 'token' => $IIIIIIIIlIlI));
+                    $this->redirect('Wap/Vote/index', array('id' => $_vid, 'token' => $_token));
                     die;
                 }
             }
         } else {
-            $this->redirect('Wap/Vote/index', array('id' => $IIIIIllI1l1l, 'token' => $IIIIIIIIlIlI));
+            $this->redirect('Wap/Vote/index', array('id' => $_vid, 'token' => $_token));
             die;
         }
-        if ($IIIIIllI1l1l && empty($_GET['wecha_id'])) {
-            $IIIIIIIIlIl1 = array('token' => $IIIIIIIIlIlI, 'id' => $IIIIIllI1l1l);
-            $IIIIIIlI1111 = M('Vote')->where($IIIIIIIIlIl1)->find();
-            if (!$IIIIIIlI1111) {
+
+        if ($_SESSION['wxd_openid']) {
+            setcookie('wxd_openid', $_wxd_openid, time() + 31536000);
+        }
+
+        if ($_vid && empty($_GET['wecha_id'])) {
+            $_condition = array('token' => $_token, 'id' => $_vid);
+            $_vote_info = M('Vote')->where($_condition)->find();
+            if (!$_vote_info) {
                 $this->error('没有此活动', U('Home/Index/index'));
             }
-            $IIIIIIlI1ll1 = M('token_open')->where(array('token' => $IIIIIIIIlIlI))->getField('uid');
-            $IIIIIIIIII1I = M('Users')->where(array('id' => $IIIIIIlI1ll1))->find();
-            $IIIIIIIlII11['check'] = $IIIIIIlI1111['check'] + 1;
-            M('Vote')->where($IIIIIIIIlIl1)->save($IIIIIIIlII11);
-            $IIIIIIl111Il = $IIIIIIlI1111['check'];
+            $_uid = M('token_open')->where(array('token' => $_token))->getField('uid');
+            $_user_info = M('Users')->where(array('id' => $_uid))->find();
+            $IIIIIIIlII11['check'] = $_vote_info['check'] + 1;
+            M('Vote')->where($_condition)->save($IIIIIIIlII11);
+            $IIIIIIl111Il = $_vote_info['check'];
             if (!$IIIIIIl111Il) {
                 $IIIIIIl111Il = 0;
             }
-            $IIIIIIl111Il = $IIIIIIl111Il + $IIIIIIlI1111['xncheck'];
-            if ($IIIIIIlI1111['start_time'] < time() && $IIIIIIlI1111['over_time'] > time()) {
+            $IIIIIIl111Il = $IIIIIIl111Il + $_vote_info['xncheck'];
+            if ($_vote_info['start_time'] < time() && $_vote_info['over_time'] > time()) {
                 $IIIII11IIIlI = 1;
             } else {
                 $IIIII11IIIlI = 0;
             }
             if ($_COOKIE['wxd_openid']) {
-                $IIIIIIllIIlI['vid'] = $IIIIIllI1l1l;
-                $IIIIIIllIIlI['status'] = array('gt', '0');
-                $IIIIIIllIIlI['wechat_id'] = $_COOKIE['wxd_openid'];
-                $IIIIIlIllIl1 = M('Vote_item')->where($IIIIIIllIIlI)->find();
+                $_condition5['vid'] = $_vid;
+                $_condition5['status'] = array('gt', '0');
+                $_condition5['wechat_id'] = $_COOKIE['wxd_openid'];
+                $IIIIIlIllIl1 = M('Vote_item')->where($_condition5)->find();
                 if ($IIIIIlIllIl1) {
                     $IIIII11IIIll = 1;
                     $IIIII11IIIl1 = $IIIIIlIllIl1['id'];
                 }
             }
-            $IIIIIllIlII1['vid'] = $IIIIIllI1l1l;
+            $IIIIIllIlII1['vid'] = $_vid;
             $IIIIIllIlII1['status'] = array('gt', '0');
-            $IIIII11III1I = array('id' => 'desc');
-            $IIIIIIl1lI11 = M('Vote_item')->where("vid={$IIIIIllI1l1l}")->sum('vcount') + M('Vote_item')->where("vid={$IIIIIllI1l1l}")->sum('dcount');
+            $IIIII11III1I = array('id' => 'asc');
+            $IIIIIIl1lI11 = M('Vote_item')->where("vid={$_vid}")->sum('vcount') + M('Vote_item')->where("vid={$_vid}")->sum('dcount');
             if (empty($IIIIIIl1lI11)) {
                 $IIIIIIl1lI11 = 0;
             }
-            $IIIIIIl1lI11 = $IIIIIIl1lI11 + $IIIIIIlI1111['xntps'];
+            $IIIIIIl1lI11 = $IIIIIIl1lI11 + $_vote_info['xntps'];
             $IIIII11III1l = M('Vote_item')->where($IIIIIllIlII1)->count();
             if (empty($IIIII11III1l)) {
                 $IIIII11III1l = 0;
             }
-            $IIIII11III1l = $IIIII11III1l + $IIIIIIlI1111['xnbms'];
+            $IIIII11III1l = $IIIII11III1l + $_vote_info['xnbms'];
             import('@.ORG.Ppage');
             $IIIIIIIII11I = $_GET['page'];
             $IIIII11III11 = M('Vote_item')->where($IIIIIllIlII1)->select();
             $IIIII11IIlII = count($IIIII11III11);
-            $IIIII11IIlIl = $IIIIIIIIII1I['myzps'];
-            $IIIIIII1l1Il = C('site_url') . '/index.php?g=Wap&m=Vote&a=index&token=' . $IIIIIIIIlIlI . '&id=' . $IIIIIllI1l1l . '&page={page}';
-            $IIIII11IIlI1 = new PageClass($IIIII11IIlII, $IIIII11IIlIl, $IIIIIIIII11I, $IIIIIII1l1Il);
+            $IIIII11IIlIl = $_user_info['myzps'];
+            $_sina_ip_look = C('site_url') . '/index.php?g=Wap&m=Vote&a=index&token=' . $_token . '&id=' . $_vid . '&page={page}';
+            $IIIII11IIlI1 = new PageClass($IIIII11IIlII, $IIIII11IIlIl, $IIIIIIIII11I, $_sina_ip_look);
             $IIIII11IIllI = $IIIII11IIlI1->page_limit;
             $IIIIIIIII1ll = $IIIII11IIlI1->myde_size;
             $IIIII11IIlll = M('Vote_item')->where($IIIIIllIlII1)->order($IIIII11III1I)->limit($IIIII11IIllI, $IIIIIIIII1ll)->select();
             $IIIII11IIll1 = $IIIII11IIlI1->myde_writewx();
-            $IIIII11IIl1I = M('guanggao')->where('vid=' . $IIIIIllI1l1l)->order('id desc')->select();
+            $IIIII11IIl1I = M('guanggao')->where('vid=' . $_vid)->order('id desc')->select();
             if (count($IIIII11IIl1I) > 1) {
                 $IIIII11IIl1l = 1;
             } else {
                 $IIIII11IIl1l = 0;
             }
-            $IIIIIII11I1I = M('diymen_set')->where(array('token' => $IIIIIIIIlIlI))->find();
+            $IIIIIII11I1I = M('diymen_set')->where(array('token' => $_token))->find();
             import('@.ORG.Jssdk');
             $IIIII1I11lll = new JSSDK($IIIIIII11I1I['id'], $IIIIIII11I1I['appid'], $IIIIIII11I1I['appsecret']);
             $IIIII1I11ll1 = $IIIII1I11lll->GetSignPackage();
@@ -121,87 +132,97 @@ class VoteAction extends BaseAction
             $this->assign('ggpic', $IIIII11IIl1I);
             $this->assign('ggduotu', $IIIII11IIl1l);
             $this->assign('page_string', $IIIII11IIll1);
-            $this->assign('vote', $IIIIIIlI1111);
+            $this->assign('vote', $_vote_info);
             $this->assign('zuopins', $IIIII11IIlll);
             $this->assign('istime', $IIIII11IIIlI);
             $this->assign('tpl', $IIIIIIl1lI11);
             $this->assign('rc', $IIIII11III1l);
             $this->assign('check', $IIIIIIl111Il);
             $this->assign('ishavezp', $IIIII11IIIll);
-            $this->assign('user', $IIIIIIIIII1I);
-            $this->assign('token', $IIIIIIIIlIlI);
+            $this->assign('user', $_user_info);
+            $this->assign('token', $_token);
             $this->assign('havezpid', $IIIII11IIIl1);
-            $this->assign('id', $IIIIIllI1l1l);
+            $this->assign('id', $_vid);
             $this->assign('page', $IIIIIIIII11I);
+
+            //查看是否关注
+            $_is_gz = '';
+            if ($_SESSION['wxd_openid']) {
+                $user_info = M('fusers')->where('openid = "' . $_SESSION['wxd_openid'] . '"')->find();
+                if ($user_info['is_gz']) {
+                    $_is_gz = $user_info['is_gz'];
+                }
+            }
+            $this->assign('_wxd_openid', $_is_gz); //是否有用户存在
             $this->display('index$tp1');
         }
     }
     public function rank()
     {
-        $IIIIIllI1l1l = $_GET['id'];
-        $IIIIIIIIlIlI = $_GET['token'];
-        if ($IIIIIllI1l1l) {
-            $IIIIIIIIlIl1 = array('token' => $IIIIIIIIlIlI, 'id' => $IIIIIllI1l1l);
-            $IIIIIIlI1111 = M('Vote')->where($IIIIIIIIlIl1)->find();
-            if (!$IIIIIIlI1111) {
+        $_vid = $_GET['id'];
+        $_token = $_GET['token'];
+        if ($_vid) {
+            $_condition = array('token' => $_token, 'id' => $_vid);
+            $_vote_info = M('Vote')->where($_condition)->find();
+            if (!$_vote_info) {
                 $this->error('没有此活动', U('Home/Index/index'));
             }
-            $IIIIIIlI1ll1 = M('token_open')->where(array('token' => $IIIIIIIIlIlI))->getField('uid');
-            $IIIIIIIIII1I = M('Users')->where(array('id' => $IIIIIIlI1ll1))->find();
-            $IIIIIIIlII11['check'] = $IIIIIIlI1111['check'] + 1;
-            M('Vote')->where($IIIIIIIIlIl1)->save($IIIIIIIlII11);
-            $IIIIIIl111Il = $IIIIIIlI1111['check'];
+            $_uid = M('token_open')->where(array('token' => $_token))->getField('uid');
+            $_user_info = M('Users')->where(array('id' => $_uid))->find();
+            $IIIIIIIlII11['check'] = $_vote_info['check'] + 1;
+            M('Vote')->where($_condition)->save($IIIIIIIlII11);
+            $IIIIIIl111Il = $_vote_info['check'];
             if (!$IIIIIIl111Il) {
                 $IIIIIIl111Il = 0;
             }
-            $IIIIIIl111Il = $IIIIIIl111Il + $IIIIIIlI1111['xncheck'];
-            if ($IIIIIIlI1111['statdate'] < time() && $IIIIIIlI1111['enddate'] > time()) {
+            $IIIIIIl111Il = $IIIIIIl111Il + $_vote_info['xncheck'];
+            if ($_vote_info['statdate'] < time() && $_vote_info['enddate'] > time()) {
                 $IIIII11IIIlI = 1;
             } else {
                 $IIIII11IIIlI = 0;
             }
             if ($_COOKIE['wxd_openid']) {
-                $IIIIIIllIIlI['vid'] = $IIIIIllI1l1l;
-                $IIIIIIllIIlI['status'] = array('gt', '0');
-                $IIIIIIllIIlI['wechat_id'] = $_COOKIE['wxd_openid'];
-                $IIIIIlIllIl1 = M('Vote_item')->where($IIIIIIllIIlI)->find();
+                $_condition5['vid'] = $_vid;
+                $_condition5['status'] = array('gt', '0');
+                $_condition5['wechat_id'] = $_COOKIE['wxd_openid'];
+                $IIIIIlIllIl1 = M('Vote_item')->where($_condition5)->find();
                 if ($IIIIIlIllIl1) {
                     $IIIII11IIIll = 1;
                     $IIIII11IIIl1 = $IIIIIlIllIl1['id'];
                 }
             }
-            $IIIIIllIlII1['vid'] = $IIIIIllI1l1l;
+            $IIIIIllIlII1['vid'] = $_vid;
             $IIIIIllIlII1['status'] = 1;
 			/*$IIIIIllIlII1['status'] = array('gt', '0');*/
             $IIIII11III1I = array('vcount' => 'desc');
-            $IIIIIIl1lI11 = M('Vote_item')->where("vid={$IIIIIllI1l1l}")->sum('vcount') + M('Vote_item')->where("vid={$IIIIIllI1l1l}")->sum('dcount');
+            $IIIIIIl1lI11 = M('Vote_item')->where("vid={$_vid}")->sum('vcount') + M('Vote_item')->where("vid={$_vid}")->sum('dcount');
             if (empty($IIIIIIl1lI11)) {
                 $IIIIIIl1lI11 = 0;
             }
-            $IIIIIIl1lI11 = $IIIIIIl1lI11 + $IIIIIIlI1111['xntps'];
+            $IIIIIIl1lI11 = $IIIIIIl1lI11 + $_vote_info['xntps'];
             $IIIII11III1l = M('Vote_item')->where($IIIIIllIlII1)->count();
             if (empty($IIIII11III1l)) {
                 $IIIII11III1l = 0;
             }
-            $IIIII11III1l = $IIIII11III1l + $IIIIIIlI1111['xnbms'];
+            $IIIII11III1l = $IIIII11III1l + $_vote_info['xnbms'];
             import('@.ORG.Ppage');
             $IIIIIIIII11I = $_GET['page'];
             $IIIII11III11 = M('Vote_item')->where($IIIIIllIlII1)->select();
             $IIIII11IIlII = count($IIIII11III11);
-            $IIIII11IIlIl = $IIIIIIIIII1I['myzps'];
-            $IIIIIII1l1Il = C('site_url') . '/index.php?g=Wap&m=Vote&a=rank&token=' . $IIIIIIIIlIlI . '&id=' . $IIIIIllI1l1l . '&page={page}';
-            $IIIII11IIlI1 = new PageClass($IIIII11IIlII, $IIIII11IIlIl, $IIIIIIIII11I, $IIIIIII1l1Il);
+            $IIIII11IIlIl = $_user_info['myzps'];
+            $_sina_ip_look = C('site_url') . '/index.php?g=Wap&m=Vote&a=rank&token=' . $_token . '&id=' . $_vid . '&page={page}';
+            $IIIII11IIlI1 = new PageClass($IIIII11IIlII, $IIIII11IIlIl, $IIIIIIIII11I, $_sina_ip_look);
             $IIIII11IIllI = $IIIII11IIlI1->page_limit;
             $IIIIIIIII1ll = $IIIII11IIlI1->myde_size;
             $IIIII11IIlll = M('Vote_item')->where($IIIIIllIlII1)->order($IIIII11III1I)->limit($IIIII11IIllI, $IIIIIIIII1ll)->select();
             $IIIII11IIll1 = $IIIII11IIlI1->myde_writewx();
-            $IIIII11IIl1I = M('guanggao')->where('vid=' . $IIIIIllI1l1l)->order('id desc')->select();
+            $IIIII11IIl1I = M('guanggao')->where('vid=' . $_vid)->order('id desc')->select();
             if (count($IIIII11IIl1I) > 1) {
                 $IIIII11IIl1l = 1;
             } else {
                 $IIIII11IIl1l = 0;
             }
-            $IIIIIII11I1I = M('diymen_set')->where(array('token' => $IIIIIIIIlIlI))->find();
+            $IIIIIII11I1I = M('diymen_set')->where(array('token' => $_token))->find();
             import('@.ORG.Jssdk');
             $IIIII1I11lll = new JSSDK($IIIIIII11I1I['id'], $IIIIIII11I1I['appid'], $IIIIIII11I1I['appsecret']);
             $IIIII1I11ll1 = $IIIII1I11lll->GetSignPackage();
@@ -209,74 +230,74 @@ class VoteAction extends BaseAction
             $this->assign('ggpic', $IIIII11IIl1I);
             $this->assign('ggduotu', $IIIII11IIl1l);
             $this->assign('page_string', $IIIII11IIll1);
-            $this->assign('vote', $IIIIIIlI1111);
+            $this->assign('vote', $_vote_info);
             $this->assign('zuopins', $IIIII11IIlll);
             $this->assign('istime', $IIIII11IIIlI);
             $this->assign('tpl', $IIIIIIl1lI11);
             $this->assign('rc', $IIIII11III1l);
             $this->assign('check', $IIIIIIl111Il);
             $this->assign('ishavezp', $IIIII11IIIll);
-            $this->assign('user', $IIIIIIIIII1I);
-            $this->assign('token', $IIIIIIIIlIlI);
+            $this->assign('user', $_user_info);
+            $this->assign('token', $_token);
             $this->assign('havezpid', $IIIII11IIIl1);
-            $this->assign('id', $IIIIIllI1l1l);
+            $this->assign('id', $_vid);
             $this->assign('page', $IIIIIIIII11I);
             $this->display('rank$tp1');
         }
     }
     public function top()
     {
-        $IIIIIllI1l1l = $_GET['id'];
-        $IIIIIIIIlIlI = $_GET['token'];
-        if ($IIIIIllI1l1l) {
-            $IIIIIIIIlIl1 = array('token' => $IIIIIIIIlIlI, 'id' => $IIIIIllI1l1l);
-            $IIIIIIlI1111 = M('Vote')->where($IIIIIIIIlIl1)->find();
-            if (!$IIIIIIlI1111) {
+        $_vid = $_GET['id'];
+        $_token = $_GET['token'];
+        if ($_vid) {
+            $_condition = array('token' => $_token, 'id' => $_vid);
+            $_vote_info = M('Vote')->where($_condition)->find();
+            if (!$_vote_info) {
                 $this->error('没有此活动', U('Home/Index/index'));
             }
-            $IIIIIIlI1ll1 = M('token_open')->where(array('token' => $IIIIIIIIlIlI))->getField('uid');
-            $IIIIIIIIII1I = M('Users')->where(array('id' => $IIIIIIlI1ll1))->find();
-            $IIIIIIl111Il = $IIIIIIlI1111['check'];
+            $_uid = M('token_open')->where(array('token' => $_token))->getField('uid');
+            $_user_info = M('Users')->where(array('id' => $_uid))->find();
+            $IIIIIIl111Il = $_vote_info['check'];
             if (!$IIIIIIl111Il) {
                 $IIIIIIl111Il = 0;
             }
-            $IIIIIIl111Il = $IIIIIIl111Il + $IIIIIIlI1111['xncheck'];
-            if ($IIIIIIlI1111['start_time'] < time() && $IIIIIIlI1111['over_time'] > time()) {
+            $IIIIIIl111Il = $IIIIIIl111Il + $_vote_info['xncheck'];
+            if ($_vote_info['start_time'] < time() && $_vote_info['over_time'] > time()) {
                 $IIIII11IIIlI = 1;
             } else {
                 $IIIII11IIIlI = 0;
             }
             if ($_COOKIE['wxd_openid']) {
-                $IIIIIIllIIlI['vid'] = $IIIIIllI1l1l;
-                $IIIIIIllIIlI['status'] = array('gt', '0');
-                $IIIIIIllIIlI['wechat_id'] = $_COOKIE['wxd_openid'];
-                $IIIIIlIllIl1 = M('Vote_item')->where($IIIIIIllIIlI)->find();
+                $_condition5['vid'] = $_vid;
+                $_condition5['status'] = array('gt', '0');
+                $_condition5['wechat_id'] = $_COOKIE['wxd_openid'];
+                $IIIIIlIllIl1 = M('Vote_item')->where($_condition5)->find();
                 if ($IIIIIlIllIl1) {
                     $IIIII11IIIll = 1;
                     $IIIII11IIIl1 = $IIIIIlIllIl1['id'];
                 }
             }
-            $IIIIIllIlII1['vid'] = $IIIIIllI1l1l;
+            $IIIIIllIlII1['vid'] = $_vid;
             $IIIIIllIlII1['status'] = array('gt', '0');
             $IIIII11III1I = array('vcount' => 'desc');
-            $IIIIIIl1lI11 = M('Vote_item')->where("vid={$IIIIIllI1l1l}")->sum('vcount') + M('Vote_item')->where("vid={$IIIIIllI1l1l}")->sum('dcount');
+            $IIIIIIl1lI11 = M('Vote_item')->where("vid={$_vid}")->sum('vcount') + M('Vote_item')->where("vid={$_vid}")->sum('dcount');
             if (empty($IIIIIIl1lI11)) {
                 $IIIIIIl1lI11 = 0;
             }
-            $IIIIIIl1lI11 = $IIIIIIl1lI11 + $IIIIIIlI1111['xntps'];
+            $IIIIIIl1lI11 = $IIIIIIl1lI11 + $_vote_info['xntps'];
             $IIIII11III1l = M('Vote_item')->where($IIIIIllIlII1)->count();
             if (empty($IIIII11III1l)) {
                 $IIIII11III1l = 0;
             }
-            $IIIII11III1l = $IIIII11III1l + $IIIIIIlI1111['xnbms'];
+            $IIIII11III1l = $IIIII11III1l + $_vote_info['xnbms'];
             $IIIII11II1Il = M('Vote_item')->where($IIIIIllIlII1)->order($IIIII11III1I)->limit(0, 300)->select();
-            $IIIII11IIl1I = M('guanggao')->where('vid=' . $IIIIIllI1l1l)->order('id desc')->select();
+            $IIIII11IIl1I = M('guanggao')->where('vid=' . $_vid)->order('id desc')->select();
             if (count($IIIII11IIl1I) > 1) {
                 $IIIII11IIl1l = 1;
             } else {
                 $IIIII11IIl1l = 0;
             }
-            $IIIIIII11I1I = M('diymen_set')->where(array('token' => $IIIIIIIIlIlI))->find();
+            $IIIIIII11I1I = M('diymen_set')->where(array('token' => $_token))->find();
             import('@.ORG.Jssdk');
             $IIIII1I11lll = new JSSDK($IIIIIII11I1I['id'], $IIIIIII11I1I['appid'], $IIIIIII11I1I['appsecret']);
             $IIIII1I11ll1 = $IIIII1I11lll->GetSignPackage();
@@ -284,284 +305,213 @@ class VoteAction extends BaseAction
             $this->assign('ggpic', $IIIII11IIl1I);
             $this->assign('ggduotu', $IIIII11IIl1l);
             $this->assign('page_string', $IIIII11IIll1);
-            $this->assign('vote', $IIIIIIlI1111);
+            $this->assign('vote', $_vote_info);
             $this->assign('phlist', $IIIII11II1Il);
             $this->assign('istime', $IIIII11IIIlI);
             $this->assign('tpl', $IIIIIIl1lI11);
             $this->assign('rc', $IIIII11III1l);
             $this->assign('check', $IIIIIIl111Il);
             $this->assign('ishavezp', $IIIII11IIIll);
-            $this->assign('user', $IIIIIIIIII1I);
-            $this->assign('token', $IIIIIIIIlIlI);
+            $this->assign('user', $_user_info);
+            $this->assign('token', $_token);
             $this->assign('havezpid', $IIIII11IIIl1);
-            $this->assign('id', $IIIIIllI1l1l);
+            $this->assign('id', $_vid);
             $this->display('top$tp1');
         }
     }
     public function ticket()
     {
-        var_dump($_POST);
-        die;
-        if (IS_POST) {
-            $IIIIIlllIl1l = $_POST['zid'];
-            $IIIIIllI1l1l = $_POST['vid'];
-            $IIIIIIIIlIlI = $_POST['token'];
-            if ($_COOKIE['wxd_openid']) {
-                $IIIIIIlIlIll = $_COOKIE['wxd_openid'];
-                $IIIII11II1lI = M('fusers')->where("openid='{$IIIIIIlIlIll}'")->find();
-                if ($IIIII11II1lI && $IIIII11II1lI['is_gz'] == 1) {
-                    $IIIII11II1ll = M('Vote_item')->where(array('id' => $IIIIIlllIl1l))->find();
-                    if ($IIIII11II1ll['status'] != 1) {
-                        $IIIIIIIIIl11['status'] = 107;
-                    } else {
-                        $IIIIIIIIlIl1 = array('token' => $IIIIIIIIlIlI, 'id' => $IIIIIllI1l1l);
-                        $IIIIIIlI1111 = M('Vote')->where($IIIIIIIIlIl1)->find();
-                        $IIIIIIlI1ll1 = M('token_open')->where(array('token' => $IIIIIIIIlIlI))->getField('uid');
-                        $IIIIIIIIII1I = M('Users')->where(array('id' => $IIIIIIlI1ll1))->find();
-                        if ($IIIIIIlI1111['statdate'] > time()) {
-                            $IIIIIIIIIl11['status'] = 103;
-                        } elseif ($IIIIIIlI1111['enddate'] < time()) {
-                            $IIIIIIIIIl11['status'] = 104;
-                        } elseif ($IIIIIIlI1111['start_time'] < time() && $IIIIIIlI1111['over_time'] > time() && $IIIIIIlI1111['btcdxz'] && $IIIII11II1ll['vcount'] >= $IIIIIIlI1111['btcdxz']) {
-                            $IIIIIIIIIl11['status'] = 120;
-                        } else {
-                            if ($IIIIIIIIII1I['spxz']) {
-                                $IIIII11II1l1 = $IIIIIIIIII1I['jgfen'];
-                                $IIIII11II11I = $IIIIIIIIII1I['jgpiao'];
-                                $IIIII11II1l1 = time() - $IIIII11II1l1 * 60;
-                                $IIIIIllII1II['vid'] = $IIIIIllI1l1l;
-                                $IIIIIllII1II['item_id'] = $IIIIIlllIl1l;
-                                $IIIIIllII1II['touch_time'] = array('gt', $IIIII11II1l1);
-                                $IIIII11II11l = M('vote_record')->where($IIIIIllII1II)->count();
-                                if ($IIIII11II11l > $IIIII11II11I) {
-                                    //$IIIII11II111=M('vote_item')->where(array('id'=>$IIIIIlllIl1l))->getField('wechat_id');
-                                    if (!empty($IIIII11II1ll['wechat_id'])) {
-                                        $IIIIIIlI1Ill = '警告信息发送';
-                                        $this->sendtext($IIIIIIIIlIlI, $IIIII11II111, $IIIIIIIIII1I['jgtext']);
-                                    }
-                                    echo '107';
-                                    die;
+        if (IS_POST) 
+        {
+            //需要在微信下打开
+            if(!strpos($_SERVER['HTTP_USER_AGENT'],"MicroMessenger")) {
+                exit(900);
+            }
+
+            //$_zid = $_POST['zid']=$_v;
+            $_vid = $_POST['vid'];
+            $_token = $_POST['token'];
+			$arr_str =$_POST['arr_str'];
+			$arr = explode(',', $arr_str);
+
+            if ($_SESSION['wxd_openid'])  $_COOKIE['wxd_openid'] = $_SESSION['wxd_openid'];
+
+			if ($_COOKIE['wxd_openid']) 
+            {
+                $_wxd_openid = $_COOKIE['wxd_openid'];
+                $_fusers_info = M('fusers')->where("openid='{$_wxd_openid}'")->find();//当前openid用户是否存在
+                if ($_fusers_info && $_fusers_info['is_gz'] == 1) 
+                {
+					$res=array_flip(array_flip($arr));
+					if(count($res) !=10)
+					{
+						echo 201;
+						die;
+					}
+
+                    $_condition = array('token' => $_token, 'id' => $_vid);
+                    $_vote_info = M('Vote')->where($_condition)->find();//活动是否存在
+
+                    $_uid = M('token_open')->where(array('token' => $_token))->getField('uid');
+                    $_user_info = M('Users')->where(array('id' => $_uid))->find();
+
+                    if ($_vote_info['statdate'] > time()) 
+                    {
+                        $_return['status'] = 103;
+                        echo 103;die;
+                    } 
+                    elseif ($_vote_info['enddate'] < time()) 
+                    {
+                        $_return['status'] = 104;
+                        echo 104;die;
+                    } 
+                    elseif ($_vote_info['start_time'] < time() && $_vote_info['over_time'] > time() && $_vote_info['btcdxz'] && $_vote_item_info['vcount'] >= $_vote_info['btcdxz']) 
+                    {
+                        $_return['status'] = 120;
+                        echo 120;die;
+                    } 
+                    else 
+                    {
+                        //查看今日是否已提交过了
+                        $condition7['vid'] = $_vid;
+                        $condition7['wecha_id'] = $_wxd_openid;
+                        $condition7['token'] = $_token;
+                        $condition7['touched'] = 1;
+                        $start_time = strtotime(date('Y-m-d'));
+                        $condition7['touch_time'] = array('gt', $start_time);
+                        $_record_count10 = M('vote_record')->where($condition7)->count();
+                        if ($_record_count10) {
+                            echo 109;
+                            die;
+                        } 
+
+                        $_ip = $this->GetIp();
+                        $_sina_ip_look = 'http://int.dpool.sina.com.cn/iplookup/iplookup.php?format=json&ip=' . $_ip;
+                        $_sina_data = json_decode($this->api_notice_increment($_sina_ip_look));
+                        if ($_user_info['xzlx'] > 0 && !empty($_user_info['area'])) 
+                        {
+                            if ($_sina_data) 
+                            {
+                                if ($_user_info['xzlx'] == 1) 
+                                {
+                                    $_province = $_sina_data->province;
+                                } 
+                                elseif ($_user_info['xzlx'] == 2) 
+                                {
+                                    $_province = $_sina_data->city;
                                 }
-                                $IIIII11IlIII = $IIIIIIIIII1I['sdfen'];
-                                $IIIII11IlIIl = $IIIIIIIIII1I['sdpiao'];
-                                $IIIII11IlIII = time() - $IIIII11IlIII * 60;
-                                $IIIII11IlII1['vid'] = $IIIIIllI1l1l;
-                                $IIIII11IlII1['item_id'] = $IIIIIlllIl1l;
-                                $IIIII11IlII1['touch_time'] = array('gt', $IIIII11IlIII);
-                                $IIIII11IlIlI = M('vote_record')->where($IIIII11IlII1)->count();
-                                if ($IIIII11IlIlI > $IIIII11IlIIl) {
-                                    $IIIII11II111 = M('vote_item')->where(array('id' => $IIIIIlllIl1l))->getField('wechat_id');
-                                    if ($IIIII11II111) {
-                                        $IIIIIIlI1Ill = '锁定信息发送';
-                                        $this->sendtext($IIIIIIIIlIlI, $IIIII11II111, $IIIIIIIIII1I['sdtext']);
-                                        M('vote_item')->where(array('id' => $IIIIIlllIl1l))->save(array('status' => 2));
-                                    }
-                                    echo '107';
-                                    die;
+                                if (strpos($_user_info['area'], $_province) === false) 
+                                {
+                                    $_status1 = 0;
+                                } 
+                                else 
+                                {
+                                    $_status1 = 1;
+                                }
+                            } 
+                            else 
+                            {
+                                $_status1 = 1;
+                            }
+                        } 
+                        else 
+                        {
+                            $_status1 = 1;
+                        }
+                        if ($_status1 == 1) 
+                        {
+
+                            //开始进行每个选手的插入
+                            foreach($res as $k=>$v)
+                            {
+                                //选手是否正常
+                                $_vote_item_info = M('Vote_item')->where(array('id' => $v))->find();//选手
+                                if ($_vote_item_info['status'] != 1) 
+                                {
+                                    $_return['status'] = 107;
+                                    echo 107;die;
+                                } 
+
+                                //开始插入数据
+                                $IIIIIIllII1l['item_id'] = $v;
+                                $IIIIIIllII1l['vid'] = $_vid;
+                                $IIIIIIllII1l['wecha_id'] = $_wxd_openid;
+                                $IIIIIIllII1l['touch_time'] = time();
+                                $IIIIIIllII1l['token'] = $_token;
+                                $IIIIIIllII1l['touched'] = 1;
+                                $IIIIIIllII1l['ip'] = $_ip;
+                                $IIIIIIllII1l['area'] = $_sina_data->province . $_sina_data->city;
+                                if (M('vote_record')->add($IIIIIIllII1l)) 
+                                {
+                                    $_return['status'] = 108;
+                                    $IIIIIIllII11['vcount'] = $_vote_item_info['vcount'] + 1;
+                                    M('vote_item')->where(array('id' => $v))->save($IIIIIIllII11);
+                                }
+
+                                if ($_user_info['tpjl']) 
+                                {
+                                    $IIIIIIllIlII = M('fusers')->where("openid='{$_wxd_openid}'")->getField('jfnum');
+                                    M('fusers')->where("openid='{$_wxd_openid}'")->save(array('jfnum' => $IIIIIIllIlII + $_user_info['tpjlnum']));
                                 }
                             }
-                            $IIIII11IlIll = $this->GetIp();
-                            $IIIIIII1l1Il = 'http://int.dpool.sina.com.cn/iplookup/iplookup.php?format=json&ip=' . $IIIII11IlIll;
-                            $IIIII11IlIl1 = json_decode($this->api_notice_increment($IIIIIII1l1Il));
-                            if ($IIIIIIIIII1I['xzlx'] > 0 && !empty($IIIIIIIIII1I['area'])) {
-                                if ($IIIII11IlIl1) {
-                                    if ($IIIIIIIIII1I['xzlx'] == 1) {
-                                        $IIIII11IlI1I = $IIIII11IlIl1->province;
-                                    } elseif ($IIIIIIIIII1I['xzlx'] == 2) {
-                                        $IIIII11IlI1I = $IIIII11IlIl1->city;
-                                    }
-                                    if (strpos($IIIIIIIIII1I['area'], $IIIII11IlI1I) === false) {
-                                        $IIIII11IlI1l = 0;
-                                    } else {
-                                        $IIIII11IlI1l = 1;
-                                    }
-                                } else {
-                                    $IIIII11IlI1l = 1;
-                                }
-                            } else {
-                                $IIIII11IlI1l = 1;
-                            }
-                            if ($IIIII11IlI1l == 1) {
-                                $IIIIIIllIIIl = date('Y-m-d', time());
-                                if ($IIIIIIIIII1I['tpxzmos'] == 0) {
-                                    $IIIIIIllIII1 = 1111111111;
-                                } else {
-                                    $IIIIIIllIII1 = strtotime($IIIIIIllIIIl);
-                                }
-                                $IIIIIIllIIlI['touch_time'] = array('gt', $IIIIIIllIII1);
-                                $IIIIIIllIIlI['wecha_id'] = $IIIIIIlIlIll;
-                                $IIIIIIllIIlI['vid'] = $IIIIIllI1l1l;
-                                $IIIIIIllIIll = M('vote_record')->where($IIIIIIllIIlI)->count();
-                                if ($IIIIIIlI1111['ipnubs'] > 0) {
-                                    $IIIII1I11lI1['touch_time'] = array('gt', $IIIIIIllIII1);
-                                    $IIIII1I11lI1['vid'] = $IIIIIllI1l1l;
-                                    $IIIII1I11lI1['ip'] = $IIIII11IlIll;
-                                    $IIIIIlIllIl1 = M('vote_record')->where($IIIII1I11lI1)->count();
-                                    if ($IIIIIlIllIl1 < $IIIIIIlI1111['ipnubs']) {
-                                        if ($IIIIIIllIIll < $IIIIIIlI1111['tpnub']) {
-                                            if ($IIIIIIIIII1I['xz1p']) {
-                                                $IIIIIIllIIl1['touch_time'] = array('gt', $IIIIIIllIII1);
-                                                $IIIIIIllIIl1['vid'] = $IIIIIllI1l1l;
-                                                $IIIIIIllIIl1['item_id'] = $IIIIIlllIl1l;
-                                                $IIIIIIllIIl1['wecha_id'] = $IIIIIIlIlIll;
-                                                if (M('vote_record')->where($IIIIIIllIIl1)->find()) {
-                                                    $IIIIIIllII1I = 0;
-                                                } else {
-                                                    $IIIIIIllII1I = 1;
-                                                }
-                                            } else {
-                                                $IIIIIIllII1I = 1;
-                                            }
-                                            if ($IIIIIIllII1I == 1) {
-                                                $IIIIIIllII1l['item_id'] = $IIIIIlllIl1l;
-                                                $IIIIIIllII1l['vid'] = $IIIIIllI1l1l;
-                                                $IIIIIIllII1l['wecha_id'] = $IIIIIIlIlIll;
-                                                $IIIIIIllII1l['touch_time'] = time();
-                                                $IIIIIIllII1l['token'] = $IIIIIIIIlIlI;
-                                                $IIIIIIllII1l['touched'] = 1;
-                                                $IIIIIIllII1l['ip'] = $IIIII11IlIll;
-                                                $IIIIIIllII1l['area'] = $IIIII11IlIl1->province . $IIIII11IlIl1->city;
-                                                if (M('vote_record')->add($IIIIIIllII1l)) {
-                                                    $IIIIIIIIIl11['status'] = 108;
-                                                    $IIIIIIllII11['vcount'] = $IIIII11II1ll['vcount'] + 1;
-                                                    M('vote_item')->where(array('id' => $IIIIIlllIl1l))->save($IIIIIIllII11);
-                                                    if ($IIIIIIIIII1I['tpjl']) {
-                                                        $IIIIIIllIlII = M('fusers')->where("openid='{$IIIIIIlIlIll}'")->getField('jfnum');
-                                                        M('fusers')->where("openid='{$IIIIIIlIlIll}'")->save(array('jfnum' => $IIIIIIllIlII + $IIIIIIIIII1I['tpjlnum']));
-                                                    }
-                                                    if (!empty($IIIII11II1ll['wechat_id']) && !empty($IIIIIIlI1111['is_sendsms']) && !empty($IIIIIIlI1111['sms_content'])) {
-                                                        $where_query = array('vid' => $IIIII11II1ll['vid'], 'vcount' => array('gt', $IIIIIIllII11['vcount']));
-                                                        $vemaxrank = M('vote_item')->where($where_query)->order('vcount desc')->max('vcount') - $IIIIIIllII11['vcount'];
-                                                        $veminrank = M('vote_item')->where($where_query)->order('vcount desc')->min('vcount') - $IIIIIIllII11['vcount'];
-                                                        $myrank = M('vote_item')->where($where_query)->count('id');
-                                                        if ($vemaxrank < 1) {
-                                                            $vemaxrank = 0;
-                                                        }
-                                                        if ($veminrank < 1) {
-                                                            $veminrank = 0;
-                                                        }
-                                                        $myrank += 1;
-                                                        $pares = array('frend' => $IIIII11II1lI['nickname'], 'vcount' => $IIIIIIllII11['vcount'], 'num' => $myrank, 'diffmaxcount' => $vemaxrank, 'diffmincount' => $veminrank, 'url' => 'http://' . $_SERVER['SERVER_NAME'] . '/index.php?g=Wap&m=Vote&a=detail&token=' . $IIIIIIIIlIlI . '&id=' . $IIIII11II1ll['vid'] . '&zid=' . $IIIIIlllIl1l);
-                                                        $this->prasecontent($IIIIIIlI1111['sms_content'], $pares);
-                                                        $this->sendtext($IIIIIIIIlIlI, $IIIII11II1ll['wechat_id'], $IIIIIIlI1111['sms_content']);
-                                                    }
-                                                } else {
-                                                    $IIIIIIIIIl11['status'] = 107;
-                                                }
-                                            } else {
-                                                $IIIIIIIIIl11['status'] = 109;
-                                            }
-                                        } else {
-                                            $IIIIIIIIIl11['status'] = 106;
-                                        }
-                                    } else {
-                                        $IIIIIIIIIl11['status'] = 105;
-                                    }
-                                } else {
-                                    if ($IIIIIIllIIll < $IIIIIIlI1111['tpnub']) {
-                                        if ($IIIIIIIIII1I['xz1p']) {
-                                            $IIIIIIllIIl1['touch_time'] = array('gt', $IIIIIIllIII1);
-                                            $IIIIIIllIIl1['vid'] = $IIIIIllI1l1l;
-                                            $IIIIIIllIIl1['item_id'] = $IIIIIlllIl1l;
-                                            $IIIIIIllIIl1['wecha_id'] = $IIIIIIlIlIll;
-                                            if (M('vote_record')->where($IIIIIIllIIl1)->find()) {
-                                                $IIIIIIllII1I = 0;
-                                            } else {
-                                                $IIIIIIllII1I = 1;
-                                            }
-                                        } else {
-                                            $IIIIIIllII1I = 1;
-                                        }
-                                        if ($IIIIIIllII1I == 1) {
-                                            $IIIIIIllII1l['item_id'] = $IIIIIlllIl1l;
-                                            $IIIIIIllII1l['vid'] = $IIIIIllI1l1l;
-                                            $IIIIIIllII1l['wecha_id'] = $IIIIIIlIlIll;
-                                            $IIIIIIllII1l['touch_time'] = time();
-                                            $IIIIIIllII1l['token'] = $IIIIIIIIlIlI;
-                                            $IIIIIIllII1l['touched'] = 1;
-                                            $IIIIIIllII1l['ip'] = $IIIII11IlIll;
-                                            $IIIIIIllII1l['area'] = $IIIII11IlIl1->province . $IIIII11IlIl1->city;
-                                            if (M('vote_record')->add($IIIIIIllII1l)) {
-                                                $IIIIIIIIIl11['status'] = 108;
-                                                $IIIIIIllII11['vcount'] = $IIIII11II1ll['vcount'] + 1;
-                                                M('vote_item')->where(array('id' => $IIIIIlllIl1l))->save($IIIIIIllII11);
-                                                if ($IIIIIIIIII1I['tpjl']) {
-                                                    $IIIIIIllIlII = M('fusers')->where("openid='{$IIIIIIlIlIll}'")->getField('jfnum');
-                                                    M('fusers')->where("openid='{$IIIIIIlIlIll}'")->save(array('jfnum' => $IIIIIIllIlII + $IIIIIIIIII1I['tpjlnum']));
-                                                }
-                                                if (!empty($IIIII11II1ll['wechat_id']) && !empty($IIIIIIlI1111['is_sendsms']) && !empty($IIIIIIlI1111['sms_content'])) {
-                                                    $where_query = array('vid' => $IIIII11II1ll['vid'], 'vcount' => array('gt', $IIIIIIllII11['vcount']));
-                                                    $vemaxrank = M('vote_item')->where($where_query)->order('vcount desc')->max('vcount') - $IIIIIIllII11['vcount'];
-                                                    $veminrank = M('vote_item')->where($where_query)->order('vcount desc')->min('vcount') - $IIIIIIllII11['vcount'];
-                                                    $myrank = M('vote_item')->where($where_query)->count('id');
-                                                    if ($vemaxrank < 1) {
-                                                        $vemaxrank = 0;
-                                                    }
-                                                    if ($veminrank < 1) {
-                                                        $veminrank = 0;
-                                                    }
-                                                    $myrank += 1;
-                                                    $pares = array('frend' => $IIIII11II1lI['nickname'], 'vcount' => $IIIIIIllII11['vcount'], 'num' => $myrank, 'diffmaxcount' => $vemaxrank, 'diffmincount' => $veminrank, 'url' => 'http://' . $_SERVER['SERVER_NAME'] . '/index.php?g=Wap&m=Vote&a=detail&token=' . $IIIIIIIIlIlI . '&id=' . $IIIII11II1ll['vid'] . '&zid=' . $IIIIIlllIl1l);
-                                                    $this->prasecontent($IIIIIIlI1111['sms_content'], $pares);
-                                                    $this->sendtext($IIIIIIIIlIlI, $IIIII11II1ll['wechat_id'], $IIIIIIlI1111['sms_content']);
-                                                }
-                                            } else {
-                                                $IIIIIIIIIl11['status'] = 107;
-                                            }
-                                        } else {
-                                            $IIIIIIIIIl11['status'] = 109;
-                                        }
-                                    } else {
-                                        $IIIIIIIIIl11['status'] = 106;
-                                    }
-                                }
-                            } else {
-                                $IIIIIIIIIl11['status'] = 110;
-                            }
+
+                        } 
+                        else 
+                        {
+                            $_return['status'] = 110;
+                            echo 110;die;
                         }
                     }
-                } else {
-                    $IIIIIIIIIl11['status'] = 102;
+                } 
+                else 
+                {
+                    $_return['status'] = 102;
+                    echo 102;die;
                 }
-            } else {
-                $IIIIIIIIIl11['status'] = 102;
+            } 
+            else 
+            {
+                $_return['status'] = 102;
+                echo 102;die;
             }
-            echo $IIIIIIIIIl11['status'];
+
+             echo $_return['status'];
+            die;
         }
     }
     public function signup()
     {
         if (IS_POST) {
-            $IIIIIllI1l1l = $_POST['id'];
-            $IIIIIIIIlIlI = $_POST['token'];
-            $IIIIIIIIlIl1 = array('token' => $IIIIIIIIlIlI, 'id' => $IIIIIllI1l1l);
-            $IIIIIIlI1111 = M('Vote')->where($IIIIIIIIlIl1)->find();
-            if (!$IIIIIIlI1111) {
+            $_vid = $_POST['id'];
+            $_token = $_POST['token'];
+            $_condition = array('token' => $_token, 'id' => $_vid);
+            $_vote_info = M('Vote')->where($_condition)->find();
+            if (!$_vote_info) {
                 $this->error('没有此活动', U('Home/Index/index'));
             }
-            $IIIIIIlI1ll1 = M('token_open')->where(array('token' => $IIIIIIIIlIlI))->getField('uid');
-            $IIIIIIIIII1I = M('Users')->where(array('id' => $IIIIIIlI1ll1))->find();
-            if ($IIIIIIlI1111) {
-                if ($IIIIIIlI1111['start_time'] < time() && $IIIIIIlI1111['over_time'] > time()) {
+            $_uid = M('token_open')->where(array('token' => $_token))->getField('uid');
+            $_user_info = M('Users')->where(array('id' => $_uid))->find();
+            if ($_vote_info) {
+                if ($_vote_info['start_time'] < time() && $_vote_info['over_time'] > time()) {
                     if ($_COOKIE['wxd_openid']) {
-                        $IIIIIIllIIlI['openid'] = $_COOKIE['wxd_openid'];
-                        $IIIII11II1lI = M('fusers')->where($IIIIIIllIIlI)->find();
-                        if ($IIIII11II1lI) {
-                            if ($IIIII11II1lI['is_gz'] == 1) {
+                        $_condition5['openid'] = $_COOKIE['wxd_openid'];
+                        $_fusers_info = M('fusers')->where($_condition5)->find();
+                        if ($_fusers_info) {
+                            if ($_fusers_info['is_gz'] == 1) {
                                 $IIIII1I11lI1['wechat_id'] = $_COOKIE['wxd_openid'];
-                                $IIIII1I11lI1['vid'] = $IIIIIllI1l1l;
+                                $IIIII1I11lI1['vid'] = $_vid;
                                 $IIIIIlllIllI = M('vote_item')->where($IIIII1I11lI1)->find();
                                 if ($IIIIIlllIllI) {
-                                    $this->redirect('Wap/Vote/detail', array('id' => $IIIIIllI1l1l, 'token' => $IIIIIIIIlIlI, 'zid' => $IIIIIlllIllI['id']));
+                                    $this->redirect('Wap/Vote/detail', array('id' => $_vid, 'token' => $_token, 'zid' => $IIIIIlllIllI['id']));
                                 } else {
                                     $IIIII11IllII = array();
-                                    $IIIII11IllII['vid'] = $IIIIIllI1l1l;
+                                    $IIIII11IllII['vid'] = $_vid;
                                     $IIIII11IllII['wechat_id'] = $_COOKIE['wxd_openid'];
                                     $IIIII11IllII['item'] = strip_tags($_POST['zpname']);
                                     $IIIII11IllII['tourl'] = $_POST['telphone'];
                                     $IIIII11IllII['intro'] = strip_tags($_POST['content']);
                                     $IIIII11IllII['addtime'] = time();
-                                    if ($IIIIIIlI1111['is_sh'] == 0) {
+                                    if ($_vote_info['is_sh'] == 0) {
                                         $IIIII11IllII['status'] = 1;
                                     } else {
                                         $IIIII11IllII['status'] = 0;
@@ -569,41 +519,41 @@ class VoteAction extends BaseAction
                                     if (!empty($_POST['fileup'])) {
                                         foreach ($_POST['fileup'] as $IIIIIIIlI11I => $IIIIIlI11II1) {
                                             if ($IIIIIIIlI11I == 0) {
-                                                $IIIII11IllIl = $this->savepic($IIIIIlI11II1, $IIIIIllI1l1l);
-                                                if ($IIIIIIIIII1I['tuchuang']) {
-                                                    $IIIII11IllII['startpicurl'] = $this->tcupload($IIIII11IllIl, $IIIIIIIIII1I['tuaccesskey'], $IIIIIIIIII1I['tusecretkey'], $IIIIIIIIII1I['tupicid']);
+                                                $IIIII11IllIl = $this->savepic($IIIIIlI11II1, $_vid);
+                                                if ($_user_info['tuchuang']) {
+                                                    $IIIII11IllII['startpicurl'] = $this->tcupload($IIIII11IllIl, $_user_info['tuaccesskey'], $_user_info['tusecretkey'], $_user_info['tupicid']);
                                                 } else {
                                                     $IIIII11IllII['startpicurl'] = $IIIII11IllIl;
                                                 }
                                             }
                                             if ($IIIIIIIlI11I == 1) {
-                                                $IIIII11IllI1 = $this->savepic($IIIIIlI11II1, $IIIIIllI1l1l);
-                                                if ($IIIIIIIIII1I['tuchuang']) {
-                                                    $IIIII11IllII['startpicurl2'] = $this->tcupload($IIIII11IllI1, $IIIIIIIIII1I['tuaccesskey'], $IIIIIIIIII1I['tusecretkey'], $IIIIIIIIII1I['tupicid']);
+                                                $IIIII11IllI1 = $this->savepic($IIIIIlI11II1, $_vid);
+                                                if ($_user_info['tuchuang']) {
+                                                    $IIIII11IllII['startpicurl2'] = $this->tcupload($IIIII11IllI1, $_user_info['tuaccesskey'], $_user_info['tusecretkey'], $_user_info['tupicid']);
                                                 } else {
                                                     $IIIII11IllII['startpicurl2'] = $IIIII11IllI1;
                                                 }
                                             }
                                             if ($IIIIIIIlI11I == 2) {
-                                                $IIIII11IlllI = $this->savepic($IIIIIlI11II1, $IIIIIllI1l1l);
-                                                if ($IIIIIIIIII1I['tuchuang']) {
-                                                    $IIIII11IllII['startpicurl3'] = $this->tcupload($IIIII11IlllI, $IIIIIIIIII1I['tuaccesskey'], $IIIIIIIIII1I['tusecretkey'], $IIIIIIIIII1I['tupicid']);
+                                                $IIIII11IlllI = $this->savepic($IIIIIlI11II1, $_vid);
+                                                if ($_user_info['tuchuang']) {
+                                                    $IIIII11IllII['startpicurl3'] = $this->tcupload($IIIII11IlllI, $_user_info['tuaccesskey'], $_user_info['tusecretkey'], $_user_info['tupicid']);
                                                 } else {
                                                     $IIIII11IllII['startpicurl3'] = $IIIII11IlllI;
                                                 }
                                             }
                                             if ($IIIIIIIlI11I == 3) {
-                                                $IIIII11Illll = $this->savepic($IIIIIlI11II1, $IIIIIllI1l1l);
-                                                if ($IIIIIIIIII1I['tuchuang']) {
-                                                    $IIIII11IllII['startpicurl4'] = $this->tcupload($IIIII11Illll, $IIIIIIIIII1I['tuaccesskey'], $IIIIIIIIII1I['tusecretkey'], $IIIIIIIIII1I['tupicid']);
+                                                $IIIII11Illll = $this->savepic($IIIIIlI11II1, $_vid);
+                                                if ($_user_info['tuchuang']) {
+                                                    $IIIII11IllII['startpicurl4'] = $this->tcupload($IIIII11Illll, $_user_info['tuaccesskey'], $_user_info['tusecretkey'], $_user_info['tupicid']);
                                                 } else {
                                                     $IIIII11IllII['startpicurl4'] = $IIIII11Illll;
                                                 }
                                             }
                                             if ($IIIIIIIlI11I == 4) {
-                                                $IIIII11Illl1 = $this->savepic($IIIIIlI11II1, $IIIIIllI1l1l);
-                                                if ($IIIIIIIIII1I['tuchuang']) {
-                                                    $IIIII11IllII['startpicurl5'] = $this->tcupload($IIIII11Illl1, $IIIIIIIIII1I['tuaccesskey'], $IIIIIIIIII1I['tusecretkey'], $IIIIIIIIII1I['tupicid']);
+                                                $IIIII11Illl1 = $this->savepic($IIIIIlI11II1, $_vid);
+                                                if ($_user_info['tuchuang']) {
+                                                    $IIIII11IllII['startpicurl5'] = $this->tcupload($IIIII11Illl1, $_user_info['tuaccesskey'], $_user_info['tusecretkey'], $_user_info['tupicid']);
                                                 } else {
                                                     $IIIII11IllII['startpicurl5'] = $IIIII11Illl1;
                                                 }
@@ -611,57 +561,57 @@ class VoteAction extends BaseAction
                                         }
                                     }
                                     $IIIII11Ill1I = M('vote_item')->add($IIIII11IllII);
-                                    if (!$IIIII11II1lI['telphone']) {
+                                    if (!$_fusers_info['telphone']) {
                                         $IIIII11Ill1l = array('telphone' => addslashes($_POST['telphone']));
-                                        M('fusers')->where(array('id' => $IIIII11II1lI['id']))->save($IIIII11Ill1l);
+                                        M('fusers')->where(array('id' => $_fusers_info['id']))->save($IIIII11Ill1l);
                                     }
                                 }
-                                $this->redirect('Wap/Vote/detail', array('id' => $IIIIIllI1l1l, 'token' => $IIIIIIIIlIlI, 'zid' => $IIIII11Ill1I));
+                                $this->redirect('Wap/Vote/detail', array('id' => $_vid, 'token' => $_token, 'zid' => $IIIII11Ill1I));
                             } else {
-                                $this->redirect('Wap/Vote/index', array('id' => $IIIIIllI1l1l, 'token' => $IIIIIIIIlIlI));
+                                $this->redirect('Wap/Vote/index', array('id' => $_vid, 'token' => $_token));
                             }
                         }
                     }
                 }
             }
         } else {
-            $IIIIIllI1l1l = $_GET['id'];
-            $IIIIIIIIlIlI = $_GET['token'];
-            if ($IIIIIllI1l1l) {
-                $IIIIIIIIlIl1 = array('token' => $IIIIIIIIlIlI, 'id' => $IIIIIllI1l1l);
-                $IIIIIIlI1111 = M('Vote')->where($IIIIIIIIlIl1)->find();
-                if (!$IIIIIIlI1111) {
+            $_vid = $_GET['id'];
+            $_token = $_GET['token'];
+            if ($_vid) {
+                $_condition = array('token' => $_token, 'id' => $_vid);
+                $_vote_info = M('Vote')->where($_condition)->find();
+                if (!$_vote_info) {
                     $this->error('没有此活动', U('Home/Index/index'));
                 }
-                $IIIIIIlI1ll1 = M('token_open')->where(array('token' => $IIIIIIIIlIlI))->getField('uid');
-                $IIIIIIIIII1I = M('Users')->where(array('id' => $IIIIIIlI1ll1))->find();
-                if (empty($IIIIIIIIII1I['picnum'])) {
+                $_uid = M('token_open')->where(array('token' => $_token))->getField('uid');
+                $_user_info = M('Users')->where(array('id' => $_uid))->find();
+                if (empty($_user_info['picnum'])) {
                     $IIIII11Il1II = 0;
                     $IIIII11Il1Il = 1;
                 } else {
-                    $IIIII11Il1II = $IIIIIIIIII1I['picnum'] - 1;
-                    $IIIII11Il1Il = $IIIIIIIIII1I['picnum'];
+                    $IIIII11Il1II = $_user_info['picnum'] - 1;
+                    $IIIII11Il1Il = $_user_info['picnum'];
                 }
-                $IIIIIIl111Il = $IIIIIIlI1111['check'];
+                $IIIIIIl111Il = $_vote_info['check'];
                 if (!$IIIIIIl111Il) {
                     $IIIIIIl111Il = 0;
                 }
-                $IIIIIIl111Il = $IIIIIIl111Il + $IIIIIIlI1111['xncheck'];
-                if ($IIIIIIlI1111['start_time'] > time()) {
+                $IIIIIIl111Il = $IIIIIIl111Il + $_vote_info['xncheck'];
+                if ($_vote_info['start_time'] > time()) {
                     $IIIII11Il1I1 = 1;
-                } elseif ($IIIIIIlI1111['over_time'] < time()) {
+                } elseif ($_vote_info['over_time'] < time()) {
                     $IIIII11Il1I1 = 2;
                 } else {
                     if ($_COOKIE['wxd_openid']) {
-                        $IIIIIIllIIlI['openid'] = $_COOKIE['wxd_openid'];
-                        $IIIII11II1lI = M('fusers')->where($IIIIIIllIIlI)->find();
-                        if ($IIIII11II1lI) {
-                            if ($IIIII11II1lI['is_gz'] == 1) {
+                        $_condition5['openid'] = $_COOKIE['wxd_openid'];
+                        $_fusers_info = M('fusers')->where($_condition5)->find();
+                        if ($_fusers_info) {
+                            if ($_fusers_info['is_gz'] == 1) {
                                 $IIIII1I11lI1['wechat_id'] = $_COOKIE['wxd_openid'];
-                                $IIIII1I11lI1['vid'] = $IIIIIllI1l1l;
+                                $IIIII1I11lI1['vid'] = $_vid;
                                 $IIIIIlllIllI = M('vote_item')->where($IIIII1I11lI1)->find();
                                 if ($IIIIIlllIllI) {
-                                    $this->redirect('Wap/Vote/detail', array('id' => $IIIIIllI1l1l, 'token' => $IIIIIIIIlIlI, 'zid' => $IIIIIlllIllI['id']));
+                                    $this->redirect('Wap/Vote/detail', array('id' => $_vid, 'token' => $_token, 'zid' => $IIIIIlllIllI['id']));
                                 } else {
                                     $IIIII11Il1I1 = 4;
                                 }
@@ -675,26 +625,26 @@ class VoteAction extends BaseAction
                         $IIIII11Il1I1 = 3;
                     }
                 }
-                $IIIIIllIlII1['vid'] = $IIIIIllI1l1l;
+                $IIIIIllIlII1['vid'] = $_vid;
                 $IIIIIllIlII1['status'] = array('gt', '0');
                 $IIIII11III1I = array('vcount' => 'desc');
-                $IIIIIIl1lI11 = M('Vote_item')->where("vid={$IIIIIllI1l1l}")->sum('vcount') + M('Vote_item')->where("vid={$IIIIIllI1l1l}")->sum('dcount');
+                $IIIIIIl1lI11 = M('Vote_item')->where("vid={$_vid}")->sum('vcount') + M('Vote_item')->where("vid={$_vid}")->sum('dcount');
                 if (empty($IIIIIIl1lI11)) {
                     $IIIIIIl1lI11 = 0;
                 }
-                $IIIIIIl1lI11 = $IIIIIIl1lI11 + $IIIIIIlI1111['xntps'];
+                $IIIIIIl1lI11 = $IIIIIIl1lI11 + $_vote_info['xntps'];
                 $IIIII11III1l = M('Vote_item')->where($IIIIIllIlII1)->count();
                 if (empty($IIIII11III1l)) {
                     $IIIII11III1l = 0;
                 }
-                $IIIII11III1l = $IIIII11III1l + $IIIIIIlI1111['xnbms'];
-                $IIIII11IIl1I = M('guanggao')->where('vid=' . $IIIIIllI1l1l)->order('id desc')->select();
+                $IIIII11III1l = $IIIII11III1l + $_vote_info['xnbms'];
+                $IIIII11IIl1I = M('guanggao')->where('vid=' . $_vid)->order('id desc')->select();
                 if (count($IIIII11IIl1I) > 1) {
                     $IIIII11IIl1l = 1;
                 } else {
                     $IIIII11IIl1l = 0;
                 }
-                $IIIIIII11I1I = M('diymen_set')->where(array('token' => $IIIIIIIIlIlI))->find();
+                $IIIIIII11I1I = M('diymen_set')->where(array('token' => $_token))->find();
                 import('@.ORG.Jssdk');
                 $IIIII1I11lll = new JSSDK($IIIIIII11I1I['id'], $IIIIIII11I1I['appid'], $IIIIIII11I1I['appsecret']);
                 $IIIII1I11ll1 = $IIIII1I11lll->GetSignPackage();
@@ -702,16 +652,16 @@ class VoteAction extends BaseAction
                 $this->assign('ggpic', $IIIII11IIl1I);
                 $this->assign('ggduotu', $IIIII11IIl1l);
                 $this->assign('page_string', $IIIII11IIll1);
-                $this->assign('vote', $IIIIIIlI1111);
+                $this->assign('vote', $_vote_info);
                 $this->assign('istime', $IIIII11IIIlI);
                 $this->assign('tpl', $IIIIIIl1lI11);
                 $this->assign('rc', $IIIII11III1l);
                 $this->assign('check', $IIIIIIl111Il);
                 $this->assign('ishavezp', $IIIII11IIIll);
-                $this->assign('user', $IIIIIIIIII1I);
-                $this->assign('token', $IIIIIIIIlIlI);
+                $this->assign('user', $_user_info);
+                $this->assign('token', $_token);
                 $this->assign('havezpid', $IIIII11IIIl1);
-                $this->assign('id', $IIIIIllI1l1l);
+                $this->assign('id', $_vid);
                 $this->assign('xzpic', $IIIII11Il1II);
                 $this->assign('picnum', $IIIII11Il1Il);
                 $this->assign('bmzt', $IIIII11Il1I1);
@@ -722,15 +672,15 @@ class VoteAction extends BaseAction
     public function search()
     {
         if (IS_POST) {
-            $IIIIIllI1l1l = $_POST['id'];
-            $IIIIIIIIlIlI = $_POST['token'];
+            $_vid = $_POST['id'];
+            $_token = $_POST['token'];
             if ($_POST['keyword'] != null && is_numeric($_POST['keyword'])) {
                 $IIIII1I11Ill = intval(htmlspecialchars($_POST['keyword']));
                 $IIIIII1Il1I1 = M('Vote_item')->where(array('id' => $IIIII1I11Ill))->find();
                 if ($IIIIII1Il1I1) {
-                    $this->redirect('Wap/Vote/detail', array('id' => $IIIIIllI1l1l, 'token' => $IIIIIIIIlIlI, 'zid' => $IIIII1I11Ill));
+                    $this->redirect('Wap/Vote/detail', array('id' => $_vid, 'token' => $_token, 'zid' => $IIIII1I11Ill));
                 } else {
-                    $IIIII1I11lI1 = U('Wap/Vote/index', array('id' => $IIIIIllI1l1l, 'token' => $IIIIIIIIlIlI));
+                    $IIIII1I11lI1 = U('Wap/Vote/index', array('id' => $_vid, 'token' => $_token));
                     echo '<script> alert(\'无此ID选手\');location.href=\'' . $IIIII1I11lI1 . '\';</script>';
                 }
             } else {
@@ -738,49 +688,49 @@ class VoteAction extends BaseAction
                 $IIIII11Il1lI['item'] = array('like', '%' . htmlspecialchars($_POST['keyword']) . '%');
                 $IIIII11IIlll = M('Vote_item')->where($IIIII11Il1lI)->order($IIIII11III1I)->select();
                 if ($IIIII11IIlll) {
-                    $IIIIIIIIlIl1 = array('token' => $IIIIIIIIlIlI, 'id' => $IIIIIllI1l1l);
-                    $IIIIIIlI1111 = M('Vote')->where($IIIIIIIIlIl1)->find();
-                    $IIIIIIlI1ll1 = M('token_open')->where(array('token' => $IIIIIIIIlIlI))->getField('uid');
-                    $IIIIIIIIII1I = M('Users')->where(array('id' => $IIIIIIlI1ll1))->find();
-                    $IIIIIIl111Il = $IIIIIIlI1111['check'];
+                    $_condition = array('token' => $_token, 'id' => $_vid);
+                    $_vote_info = M('Vote')->where($_condition)->find();
+                    $_uid = M('token_open')->where(array('token' => $_token))->getField('uid');
+                    $_user_info = M('Users')->where(array('id' => $_uid))->find();
+                    $IIIIIIl111Il = $_vote_info['check'];
                     if (!$IIIIIIl111Il) {
                         $IIIIIIl111Il = 0;
                     }
-                    $IIIIIIl111Il = $IIIIIIl111Il + $IIIIIIlI1111['xncheck'];
-                    if ($IIIIIIlI1111['start_time'] < time() && $IIIIIIlI1111['over_time'] > time()) {
+                    $IIIIIIl111Il = $IIIIIIl111Il + $_vote_info['xncheck'];
+                    if ($_vote_info['start_time'] < time() && $_vote_info['over_time'] > time()) {
                         $IIIII11IIIlI = 1;
                     } else {
                         $IIIII11IIIlI = 0;
                     }
                     if ($_COOKIE['wxd_openid']) {
-                        $IIIIIIllIIlI['vid'] = $IIIIIllI1l1l;
-                        $IIIIIIllIIlI['status'] = array('gt', '0');
-                        $IIIIIIllIIlI['wechat_id'] = $_COOKIE['wxd_openid'];
-                        $IIIIIlIllIl1 = M('Vote_item')->where($IIIIIIllIIlI)->find();
+                        $_condition5['vid'] = $_vid;
+                        $_condition5['status'] = array('gt', '0');
+                        $_condition5['wechat_id'] = $_COOKIE['wxd_openid'];
+                        $IIIIIlIllIl1 = M('Vote_item')->where($_condition5)->find();
                         if ($IIIIIlIllIl1) {
                             $IIIII11IIIll = 1;
                             $IIIII11IIIl1 = $IIIIIlIllIl1['id'];
                         }
                     }
-                    $IIIIIllIlII1['vid'] = $IIIIIllI1l1l;
+                    $IIIIIllIlII1['vid'] = $_vid;
                     $IIIIIllIlII1['status'] = array('gt', '0');
-                    $IIIIIIl1lI11 = M('Vote_item')->where("vid={$IIIIIllI1l1l}")->sum('vcount') + M('Vote_item')->where("vid={$IIIIIllI1l1l}")->sum('dcount');
+                    $IIIIIIl1lI11 = M('Vote_item')->where("vid={$_vid}")->sum('vcount') + M('Vote_item')->where("vid={$_vid}")->sum('dcount');
                     if (empty($IIIIIIl1lI11)) {
                         $IIIIIIl1lI11 = 0;
                     }
-                    $IIIIIIl1lI11 = $IIIIIIl1lI11 + $IIIIIIlI1111['xntps'];
+                    $IIIIIIl1lI11 = $IIIIIIl1lI11 + $_vote_info['xntps'];
                     $IIIII11III1l = M('Vote_item')->where($IIIIIllIlII1)->count();
                     if (empty($IIIII11III1l)) {
                         $IIIII11III1l = 0;
                     }
-                    $IIIII11III1l = $IIIII11III1l + $IIIIIIlI1111['xnbms'];
-                    $IIIII11IIl1I = M('guanggao')->where('vid=' . $IIIIIllI1l1l)->order('id desc')->select();
+                    $IIIII11III1l = $IIIII11III1l + $_vote_info['xnbms'];
+                    $IIIII11IIl1I = M('guanggao')->where('vid=' . $_vid)->order('id desc')->select();
                     if (count($IIIII11IIl1I) > 1) {
                         $IIIII11IIl1l = 1;
                     } else {
                         $IIIII11IIl1l = 0;
                     }
-                    $IIIIIII11I1I = M('diymen_set')->where(array('token' => $IIIIIIIIlIlI))->find();
+                    $IIIIIII11I1I = M('diymen_set')->where(array('token' => $_token))->find();
                     import('@.ORG.Jssdk');
                     $IIIII1I11lll = new JSSDK($IIIIIII11I1I['id'], $IIIIIII11I1I['appid'], $IIIIIII11I1I['appsecret']);
                     $IIIII1I11ll1 = $IIIII1I11lll->GetSignPackage();
@@ -788,20 +738,20 @@ class VoteAction extends BaseAction
                     $this->assign('ggpic', $IIIII11IIl1I);
                     $this->assign('ggduotu', $IIIII11IIl1l);
                     $this->assign('page_string', $IIIII11IIll1);
-                    $this->assign('vote', $IIIIIIlI1111);
+                    $this->assign('vote', $_vote_info);
                     $this->assign('zuopins', $IIIII11IIlll);
                     $this->assign('istime', $IIIII11IIIlI);
                     $this->assign('tpl', $IIIIIIl1lI11);
                     $this->assign('rc', $IIIII11III1l);
                     $this->assign('check', $IIIIIIl111Il);
                     $this->assign('ishavezp', $IIIII11IIIll);
-                    $this->assign('user', $IIIIIIIIII1I);
-                    $this->assign('token', $IIIIIIIIlIlI);
+                    $this->assign('user', $_user_info);
+                    $this->assign('token', $_token);
                     $this->assign('havezpid', $IIIII11IIIl1);
-                    $this->assign('id', $IIIIIllI1l1l);
+                    $this->assign('id', $_vid);
                     $this->display('search$tp1');
                 } else {
-                    $IIIII1I11lI1 = U('Wap/Vote/index', array('id' => $IIIIIllI1l1l, 'token' => $IIIIIIIIlIlI));
+                    $IIIII1I11lI1 = U('Wap/Vote/index', array('id' => $_vid, 'token' => $_token));
                     echo '<script> alert(\'无此选手\');location.href=\'' . $IIIII1I11lI1 . '\';</script>';
                 }
             }
@@ -809,14 +759,14 @@ class VoteAction extends BaseAction
     }
     public function add_vote()
     {
-        $IIIIIIIIlIlI = $this->_post('token');
+        $_token = $this->_post('token');
         $IIIIIlIIIll1 = $this->_post('wecha_id');
         $IIIIIIl1ll11 = $this->_post('tid');
         $IIIII11Il1l1 = rtrim($this->_post('chid'), ',');
         $IIIIIIlI111I = M('Vote_record');
         $IIIII11Il11I = M('vote')->where(array('id' => $IIIIIIl1ll11))->field('votelimit')->find();
-        $IIIIIIIIlIl1 = array('vid' => $IIIIIIl1ll11, 'wecha_id' => $IIIIIlIIIll1, 'token' => $IIIIIIIIlIlI);
-        $IIIII1lI1lI1 = $IIIIIIlI111I->where($IIIIIIIIlIl1)->select();
+        $_condition = array('vid' => $IIIIIIl1ll11, 'wecha_id' => $IIIIIlIIIll1, 'token' => $_token);
+        $IIIII1lI1lI1 = $IIIIIIlI111I->where($_condition)->select();
         $IIIII11Il11l = count($IIIII1lI1lI1, COUNT_NORMAL);
         if ($IIIII11Il11l >= (int) $IIIII11Il11I['votelimit'] || $IIIIIlIIIll1 == '') {
             $IIIIIIIlII1l = array('success' => 0);
@@ -824,114 +774,114 @@ class VoteAction extends BaseAction
             die;
         } else {
             $IIIII11Il111 = (int) $IIIII11Il11I['votelimit'] - (int) $IIIII11Il11l - 1;
-            $IIIIIIIIIl11 = array('item_id' => $IIIII11Il1l1, 'token' => $IIIIIIIIlIlI, 'vid' => $IIIIIIl1ll11, 'wecha_id' => $IIIIIlIIIll1, 'touch_time' => time(), 'touched' => 1);
-            $IIIIIIIIlI1I = $IIIIIIlI111I->add($IIIIIIIIIl11);
+            $_return = array('item_id' => $IIIII11Il1l1, 'token' => $_token, 'vid' => $IIIIIIl1ll11, 'wecha_id' => $IIIIIlIIIll1, 'touch_time' => time(), 'touched' => 1);
+            $IIIIIIIIlI1I = $IIIIIIlI111I->add($_return);
             $IIIIII1IIlIl['id'] = array('in', $IIIII11Il1l1);
             $IIIIIIlI111l = M('Vote_item');
             $IIIIIIlI111l->where($IIIIII1IIlIl)->setInc('vcount');
-            $IIIIIIIlII1l = array('success' => 1, 'token' => $IIIIIIIIlIlI, 'wecha_id' => $IIIIIlIIIll1, 'tid' => $IIIIIIl1ll11, 'chid' => $IIIII11Il1l1, 'arrpre' => $IIIII11I1III, 'vleft' => $IIIII11Il111);
+            $IIIIIIIlII1l = array('success' => 1, 'token' => $_token, 'wecha_id' => $IIIIIlIIIll1, 'tid' => $IIIIIIl1ll11, 'chid' => $IIIII11Il1l1, 'arrpre' => $IIIII11I1III, 'vleft' => $IIIII11Il111);
             echo json_encode($IIIIIIIlII1l);
             die;
         }
     }
     public function detail()
     {
-        $IIIIIllI1l1l = $_GET['id'];
-        $IIIIIIIIlIlI = $_GET['token'];
-        $IIIIIlllIl1l = $_GET['zid'];
+        $_vid = $_GET['id'];
+        $_token = $_GET['token'];
+        $_zid = $_GET['zid'];
         $IIIII11IIIIl = $_GET['isappinstalled'];
         $IIIIIl1Il1l1 = $_GET['from'];
         //if(!isset($IIIIIl1Il1l1) &&!isset($IIIII11IIIIl)){
         if (empty($_COOKIE['wxd_openid'])) {
             if (isset($_GET['wecha_id'])) {
-                $IIIIIIlIlIll = $_GET['wecha_id'];
-                setcookie('wxd_openid', $IIIIIIlIlIll, time() + 31536000);
-                //setcookie('wxd_openid',$IIIIIIlIlIll,time()+31536000,'/','.m.nckyjy.com');
-                $this->redirect('Wap/Vote/detail', array('id' => $IIIIIllI1l1l, 'token' => $IIIIIIIIlIlI, 'zid' => $IIIIIlllIl1l));
+                $_wxd_openid = $_GET['wecha_id'];
+                setcookie('wxd_openid', $_wxd_openid, time() + 31536000);
+                //setcookie('wxd_openid',$_wxd_openid,time()+31536000,'/','.m.nckyjy.com');
+                $this->redirect('Wap/Vote/detail', array('id' => $_vid, 'token' => $_token, 'zid' => $_zid));
                 die;
             }
         } else {
             if (isset($_GET['wecha_id'])) {
                 if ($_GET['wecha_id'] != $_COOKIE['wxd_openid']) {
-                    $IIIIIIlIlIll = $_GET['wecha_id'];
-                    setcookie('wxd_openid', $IIIIIIlIlIll, time() + 31536000);
+                    $_wxd_openid = $_GET['wecha_id'];
+                    setcookie('wxd_openid', $_wxd_openid, time() + 31536000);
                 }
-                $this->redirect('Wap/Vote/detail', array('id' => $IIIIIllI1l1l, 'token' => $IIIIIIIIlIlI, 'zid' => $IIIIIlllIl1l));
+                $this->redirect('Wap/Vote/detail', array('id' => $_vid, 'token' => $_token, 'zid' => $_zid));
                 die;
             }
         }
         /*}else{
         
-        $this->redirect('Wap/Vote/index',array('id'=>$IIIIIllI1l1l,'token'=>$IIIIIIIIlIlI));
+        $this->redirect('Wap/Vote/index',array('id'=>$_vid,'token'=>$_token));
         
         exit;
         
         }*/
         if (empty($_GET['wecha_id'])) {
             $IIIIIllIlIII = M('Vote');
-            $IIIIIIIIlIl1 = array('token' => $IIIIIIIIlIlI, 'id' => $IIIIIllI1l1l);
-            $IIIIIIlI1111 = $IIIIIllIlIII->where($IIIIIIIIlIl1)->find();
+            $_condition = array('token' => $_token, 'id' => $_vid);
+            $_vote_info = $IIIIIllIlIII->where($_condition)->find();
             $IIIIIllIlIlI = M('Vote_item');
-            $IIIIIllIlII1['id'] = $IIIIIlllIl1l;
-            $IIIIIIIIIl11 = $IIIIIllIlIlI->where($IIIIIllIlII1)->find();
-            $IIIII1lIl111['vcount'] = array('gt', $IIIIIIIIIl11['vcount']);
-            $IIIII1lIl111['vid'] = $IIIIIllI1l1l;
+            $IIIIIllIlII1['id'] = $_zid;
+            $_return = $IIIIIllIlIlI->where($IIIIIllIlII1)->find();
+            $IIIII1lIl111['vcount'] = array('gt', $_return['vcount']);
+            $IIIII1lIl111['vid'] = $_vid;
             $IIIII11I1IIl = $IIIIIllIlIlI->where($IIIII1lIl111)->count();
             $IIIII11I1IIl += 1;
             $IIIIIllIlllI = M('Token_open');
-            $IIIIIllIlll1 = $IIIIIllIlllI->where(array('token' => $IIIIIIIIlIlI))->getField('uid');
-            $IIIIIIIIII1I = M('Users')->where(array('id' => $IIIIIllIlll1))->find();
+            $IIIIIllIlll1 = $IIIIIllIlllI->where(array('token' => $_token))->getField('uid');
+            $_user_info = M('Users')->where(array('id' => $IIIIIllIlll1))->find();
             if ($_COOKIE['wxd_openid']) {
-                $IIIIIIllIIlI['vid'] = $IIIIIllI1l1l;
-                $IIIIIIllIIlI['status'] = array('gt', '0');
-                $IIIIIIllIIlI['wechat_id'] = $_COOKIE['wxd_openid'];
-                $IIIIIlIllIl1 = M('Vote_item')->where($IIIIIIllIIlI)->find();
+                $_condition5['vid'] = $_vid;
+                $_condition5['status'] = array('gt', '0');
+                $_condition5['wechat_id'] = $_COOKIE['wxd_openid'];
+                $IIIIIlIllIl1 = M('Vote_item')->where($_condition5)->find();
                 if ($IIIIIlIllIl1) {
                     $IIIII11IIIll = 1;
                     $IIIII11IIIl1 = $IIIIIlIllIl1['id'];
                 }
             }
-            $IIIII11IIl1I = M('guanggao')->where('vid=' . $IIIIIllI1l1l)->order('id desc')->select();
+            $IIIII11IIl1I = M('guanggao')->where('vid=' . $_vid)->order('id desc')->select();
             if (count($IIIII11IIl1I) > 1) {
                 $IIIII11IIl1l = 1;
             } else {
                 $IIIII11IIl1l = 0;
             }
-            $IIIIIII11I1I = M('diymen_set')->where(array('token' => $IIIIIIIIlIlI))->find();
+            $IIIIIII11I1I = M('diymen_set')->where(array('token' => $_token))->find();
             import('@.ORG.Jssdk');
             $IIIII1I11lll = new JSSDK($IIIIIII11I1I['id'], $IIIIIII11I1I['appid'], $IIIIIII11I1I['appsecret']);
             $IIIII1I11ll1 = $IIIII1I11lll->GetSignPackage();
             $this->assign('signPackage', $IIIII1I11ll1);
             $this->assign('ggpic', $IIIII11IIl1I);
             $this->assign('ggduotu', $IIIII11IIl1l);
-            $this->assign('zpinfo', $IIIIIIIIIl11);
-            $this->assign('vote', $IIIIIIlI1111);
+            $this->assign('zpinfo', $_return);
+            $this->assign('vote', $_vote_info);
             $this->assign('mingci', $IIIII11I1IIl);
             $this->assign('ishavezp', $IIIII11IIIll);
             $this->assign('havezpid', $IIIII11IIIl1);
-            $this->assign('user', $IIIIIIIIII1I);
-            $this->assign('token', $IIIIIIIIlIlI);
+            $this->assign('user', $_user_info);
+            $this->assign('token', $_token);
             $this->assign('havezpid', $IIIII11IIIl1);
-            $this->assign('id', $IIIIIllI1l1l);
+            $this->assign('id', $_vid);
             $this->display('detail$tp1');
         }
     }
     public function vote()
     {
-        $IIIIIIIIIl11['item_id'] = htmlspecialchars($this->_post('id'));
-        $IIIIIIIIIl11['vid'] = htmlspecialchars($this->_post('vid'));
-        $IIIIIIIIIl11['token'] = htmlspecialchars($this->_post('token'));
-        $IIIIIIIIIl11['wecha_id'] = htmlspecialchars($this->_post('wecha_id'));
-        $IIIIIIIIIl11['touch_time'] = time();
-        $IIIIIIIIIl11['touched'] = 1;
-        $IIIIIllIlII1['vid'] = $IIIIIIIIIl11['vid'];
-        $IIIIIllIlII1['wecha_id'] = $IIIIIIIIIl11['wecha_id'];
+        $_return['item_id'] = htmlspecialchars($this->_post('id'));
+        $_return['vid'] = htmlspecialchars($this->_post('vid'));
+        $_return['token'] = htmlspecialchars($this->_post('token'));
+        $_return['wecha_id'] = htmlspecialchars($this->_post('wecha_id'));
+        $_return['touch_time'] = time();
+        $_return['touched'] = 1;
+        $IIIIIllIlII1['vid'] = $_return['vid'];
+        $IIIIIllIlII1['wecha_id'] = $_return['wecha_id'];
         $IIIII11I1II1 = M('Vote_record');
         if ($IIIII11I1II1->where($IIIIIllIlII1)->find()) {
             $this->ajaxReturn('', '', 1, 'json');
         } else {
-            $IIIII11I1II1->add($IIIIIIIIIl11);
-            $IIIIII1IIlIl['id'] = array('in', $IIIIIIIIIl11['item_id']);
+            $IIIII11I1II1->add($_return);
+            $IIIIII1IIlIl['id'] = array('in', $_return['item_id']);
             $IIIIIIlI111l = M('Vote_item');
             $IIIIIIlI111l->where($IIIIII1IIlIl)->setInc('vcount');
             $this->ajaxReturn('', '', 2, 'json');
@@ -991,7 +941,7 @@ class VoteAction extends BaseAction
         }
         echo $IIIII11I1Il1;
     }
-    private function savepic($IIIII11I1I11, $IIIIIllI1l1l)
+    private function savepic($IIIII11I1I11, $_vid)
     {
         $IIIIIIlIll11 = date('Ymd');
         if (!file_exists($_SERVER['DOCUMENT_ROOT'] . '/uploads') || !is_dir($_SERVER['DOCUMENT_ROOT'] . '/uploads')) {
@@ -1001,22 +951,22 @@ class VoteAction extends BaseAction
         if (!file_exists($IIIIIIlIl1Il) || !is_dir($IIIIIIlIl1Il)) {
             mkdir($IIIIIIlIl1Il);
         }
-        $IIIII11I1lII = $_SERVER['DOCUMENT_ROOT'] . '/uploads/vote/' . $IIIIIllI1l1l;
+        $IIIII11I1lII = $_SERVER['DOCUMENT_ROOT'] . '/uploads/vote/' . $_vid;
         if (!file_exists($IIIII11I1lII) || !is_dir($IIIII11I1lII)) {
             mkdir($IIIII11I1lII);
         }
-        $IIIIIIlIl1Il = $_SERVER['DOCUMENT_ROOT'] . '/uploads/vote/' . $IIIIIllI1l1l . '/' . $IIIIIIlIll11;
+        $IIIIIIlIl1Il = $_SERVER['DOCUMENT_ROOT'] . '/uploads/vote/' . $_vid . '/' . $IIIIIIlIll11;
         if (!file_exists($IIIIIIlIl1Il) || !is_dir($IIIIIIlIl1Il)) {
             mkdir($IIIIIIlIl1Il);
         }
         $IIIIIIlIl1I1 = date('YmdHis') . '_' . rand(10000, 99999) . '.jpeg';
-        $IIIII11I1lIl = '/uploads/vote/' . $IIIIIllI1l1l . '/' . $IIIIIIlIll11 . '/' . $IIIIIIlIl1I1;
+        $IIIII11I1lIl = '/uploads/vote/' . $_vid . '/' . $IIIIIIlIll11 . '/' . $IIIIIIlIl1I1;
         $IIIIIlI11II1 = $_SERVER['DOCUMENT_ROOT'] . $IIIII11I1lIl;
-        $IIIIIII1l1Il = 'http://' . $_SERVER['HTTP_HOST'] . $IIIII11I1lIl;
+        $_sina_ip_look = 'http://' . $_SERVER['HTTP_HOST'] . $IIIII11I1lIl;
         $IIIII11I1lI1 = base64_decode($IIIII11I1I11);
         $IIIII11I1llI = file_put_contents($IIIIIlI11II1, $IIIII11I1lI1);
         if ($IIIII11I1llI) {
-            return $IIIIIII1l1Il;
+            return $_sina_ip_look;
         }
     }
     private function tcupload($IIIIIlI11II1, $IIIII11I1ll1, $IIIII11I1l1I, $IIIII11I1l1l)
@@ -1037,27 +987,27 @@ class VoteAction extends BaseAction
     }
     private function GetIP()
     {
-        $IIIII11IlIll = false;
+        $_ip = false;
         if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
-            $IIIII11IlIll = $_SERVER['HTTP_CLIENT_IP'];
+            $_ip = $_SERVER['HTTP_CLIENT_IP'];
         }
         if (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
             $IIIII11I11I1 = explode(', ', $_SERVER['HTTP_X_FORWARDED_FOR']);
             if (count($IIIII11I11I1) < 2) {
                 $IIIII11I11I1 = explode(',', $_SERVER['HTTP_X_FORWARDED_FOR']);
             }
-            if ($IIIII11IlIll) {
-                array_unshift($IIIII11I11I1, $IIIII11IlIll);
-                $IIIII11IlIll = FALSE;
+            if ($_ip) {
+                array_unshift($IIIII11I11I1, $_ip);
+                $_ip = FALSE;
             }
             for ($IIIIIIIllI11 = 0; $IIIIIIIllI11 < count($IIIII11I11I1); $IIIIIIIllI11++) {
                 if (!eregi('^(10|172\\.16|192\\.168)\\.', $IIIII11I11I1[$IIIIIIIllI11])) {
-                    $IIIII11IlIll = $IIIII11I11I1[$IIIIIIIllI11];
+                    $_ip = $IIIII11I11I1[$IIIIIIIllI11];
                     break;
                 }
             }
         }
-        return $IIIII11IlIll ? $IIIII11IlIll : $_SERVER['REMOTE_ADDR'];
+        return $_ip ? $_ip : $_SERVER['REMOTE_ADDR'];
     }
     public function hongbao()
     {
@@ -1089,4 +1039,124 @@ class VoteAction extends BaseAction
         }
         $this->assign('user_is_gz', $this->user_is_gz);
     }
+
+
+    //获取用户数据
+    public function get_wx_user_info()
+    {
+        if(!strpos($_SERVER['HTTP_USER_AGENT'],"MicroMessenger")) {
+            return;
+        }
+
+        $diymen_set=M('diymen_set')->where(array('token'=>$_GET['token']))->find();
+
+        $code = $_GET['code'];
+        if(empty($code)){
+
+            //如果是微信浏览器上去获取投票人的信息
+            //1, 查看是否关注，如果已关注的了再做处理
+            //2, 用token换取用户信息
+
+            $url = 'http://' . $_SERVER['HTTP_HOST'] . 'index.php?g=Wap&m=Vote&a=index&token=Eioa5C5oj3S32qhH&id=9';
+            $url = 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+            $callback = urlencode($url);
+            $forward = 'https://open.weixin.qq.com/connect/oauth2/authorize?appid='.$diymen_set['appid'].'&redirect_uri='.$callback.'&response_type=code&scope=snsapi_userinfo&state=jiuye#wechat_redirect';
+
+            header("Location: ".$forward);
+        } else {
+
+            //通过网页授权, 获取用户数据
+            $url = "https://api.weixin.qq.com/sns/oauth2/access_token?appid=".$diymen_set['appid']."&secret=".$diymen_set['appsecret']."&code=".$code."&grant_type=authorization_code";
+
+            $this->getAccessToken($diymen_set, $url);
+
+        }
+    }
+
+	//用刷新令牌获取ACCESS_TOKEN
+	public function getAccessToken($diymen_set, $url)
+	{
+        $appid = $diymen_set['appid'];
+        $appsecret = $diymen_set['appsecret'];
+
+		$result = $this->https_request($url);
+
+		$jsondecode = json_decode($result);
+		if($jsondecode != null)
+		{
+			if (property_exists($jsondecode, "errcode"))
+			{
+				if ($jsondecode->{"errcode"} == "40030")
+				{
+					$redirect_uri = 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+					$url = 'https://open.weixin.qq.com/connect/oauth2/authorize?appid=' . $appid . '&redirect_uri=' . urlencode($redirect_uri) .'&response_type=code&scope=snsapi_userinfo&state=1#wechat_redirect';
+                    header("Location: ".$url);
+				}
+			}
+			if(property_exists($jsondecode, "openid"))
+			{
+				//获取用户信息及关注与否
+                //此处使用的token与网页授权不同
+                if ($diymen_set['expire_access'] <time()) {
+
+                    $token_url= "https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=".$diymen_set['appid']."&secret=".$diymen_set['appsecret'];
+                    $token_returns = json_decode($this->https_request($token_url));
+                    $token_return = $token_returns->access_token;
+
+                    if ($token_return) {
+
+                        $token_save['expire_access'] = time() +7000;
+
+                        $token_save['access_token'] = $token_return;
+
+                        M('diymen_set')->where(array('token'=>$token))->save($token_save);
+                    }
+                }else {
+                    $token_return= $diymen_set['access_token'];
+                }
+                
+				#$url = 'https://api.weixin.qq.com/sns/userinfo?access_token=' . $jsondecode->{"access_token"} . '&openid=' . $jsondecode->{"openid"} . '&lang=zh_CN';
+                $url = 'https://api.weixin.qq.com/cgi-bin/user/info?access_token=' . $token_return . '&openid=' .$jsondecode->{"openid"} . '&lang=zh_CN';
+				$result = $this->https_request($url);
+				$userinfo = json_decode($result);
+
+                //只有关注了才进行下面的操作
+                if ($userinfo->{"subscribe"}) {
+
+                    //写数据库
+                    //存数据到fusers里面,并存cookie, 更新diyment_set公众号里的token过期时间
+                    $arr = array(
+                        'nickname'				=> $userinfo->{"nickname"},
+                        'sex'					=> $userinfo->{"sex"},
+                        'city'					=> $userinfo->{"city"},
+                        'country'				=> $userinfo->{"country"},
+                        'province'				=> $userinfo->{"province"},
+                        'headimgurl'			=> urldecode($userinfo->{"headimgurl"}),
+                        'openid'				=> $jsondecode->{"openid"},
+                        'is_gz'                 => $userinfo->{"subscribe"},
+                        'gztime'                => $userinfo->{"subscribe_time"},
+                    );
+
+                    #echo "<pre>";
+                    #print_r($arr);
+                    #echo "</pre>";
+                    $where = 'openid = "' . $jsondecode->{"openid"} . '"';
+                    $user = M('fusers')->where($where)->find();
+                    if (!$user)
+                    {
+                        M('fusers')->add($arr);
+                    }
+                    else
+                    {
+                        M('fusers')->where($where)->save($arr);
+                    }
+                    setcookie('wxd_openid', $jsondecode->{"openid"}, time() + 31536000);
+                    $_SESSION['wxd_openid'] = $jsondecode->{"openid"};
+                } else {
+                    $_SESSION['wxd_openid'] = $jsondecode->{"openid"};
+                }
+			}
+		}
+	}
+
 }
